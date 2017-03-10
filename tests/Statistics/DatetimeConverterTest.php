@@ -19,7 +19,10 @@ class DatetimeConverterTest extends BaseTest
         $formatY = $datetimeI->format('Y');
         $weekSub = $datetimeI->format('w') ? $datetimeI->format('w') - 1 : 6;
 
-        $this->assertEquals($datetimeI, $converter->convert($datetime));
+        $this->assertEquals(
+            $datetimeI->getTimestamp(),
+            $converter->convert($datetime)->getTimestamp()
+        );
         $this->assertEquals(
             $datetimeI->setTime(0, 0, 0),
             $converter->convert($datetime, 'day')
