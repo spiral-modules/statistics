@@ -78,7 +78,7 @@ class OccurrenceSourceTest extends BaseTest
         $occurrence = $source->createFromTimestamp($datetime);
         $this->assertNotEmpty($occurrence);
 
-        $this->assertEquals($occurrence->timestamp, $converter->convert($datetime));
+        $this->assertEquals($occurrence->timestamp, $datetime);
         $this->assertEquals(
             $occurrence->day_mark,
             $converter->convert($datetime, 'day')
