@@ -40,6 +40,20 @@ class TrackTest extends BaseTest
         $this->assertCount(2, $this->orm->source(Event::class));
     }
 
+    public function testEmptyEvents()
+    {
+        /** @var Track $track */
+        $track = $this->container->get(Track::class);
+
+        $this->assertCount(0, $this->orm->source(Occurrence::class));
+        $this->assertCount(0, $this->orm->source(Event::class));
+
+        $track->events([]);
+
+        $this->assertCount(0, $this->orm->source(Occurrence::class));
+        $this->assertCount(0, $this->orm->source(Event::class));
+    }
+
     public function testEventInc()
     {
         /** @var Track $track */

@@ -51,6 +51,11 @@ class Track
      */
     public function events(array $events, \DateTime $datetime = null)
     {
+        if (empty($events)) {
+            //nothing to track
+            return;
+        }
+
         $occurrence = $this->occurrenceSource->getByTimestamp($this->datetime($datetime));
 
         if (!$occurrence->primaryKey()) {
