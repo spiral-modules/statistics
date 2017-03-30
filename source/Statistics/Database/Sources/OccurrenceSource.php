@@ -8,7 +8,7 @@ use Spiral\ORM\Entities\RecordSource;
 use Spiral\ORM\ORMInterface;
 use Spiral\Statistics\Database\Occurrence;
 use Spiral\Statistics\DatetimeConverter;
-use Spiral\Statistics\Extract\ExtractRange;
+use Spiral\Statistics\Extract\Range;
 
 class OccurrenceSource extends RecordSource
 {
@@ -73,13 +73,13 @@ class OccurrenceSource extends RecordSource
     }
 
     /**
-     * @param ExtractRange       $range
+     * @param Range              $range
      * @param \DateTimeInterface $timestamp
      * @param array              $events
      * @return RecordSelector|Occurrence[]
      */
     public function findByRange(
-        ExtractRange $range,
+        Range $range,
         \DateTimeInterface $timestamp,
         array $events = []
     ): RecordSelector

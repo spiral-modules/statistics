@@ -5,7 +5,7 @@ namespace Spiral\Statistics\Extract;
 use Spiral\Statistics\Exceptions\InvalidExtractRangeException;
 use Spiral\Statistics\Extract;
 
-class ExtractRange
+class Range
 {
     /** @var string */
     private $range;

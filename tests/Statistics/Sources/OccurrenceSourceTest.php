@@ -6,7 +6,7 @@ use Spiral\Statistics\Database\Occurrence;
 use Spiral\Statistics\Database\Sources\OccurrenceSource;
 use Spiral\Statistics\DatetimeConverter;
 use Spiral\Statistics\Extract;
-use Spiral\Statistics\Extract\ExtractRange;
+use Spiral\Statistics\Extract\Range;
 use Spiral\Statistics\Track;
 use Spiral\Tests\BaseTest;
 
@@ -106,7 +106,7 @@ class OccurrenceSourceTest extends BaseTest
         /** @var Track $track */
         $track = $this->container->get(Track::class);
 
-        $range = new ExtractRange(Extract::DAILY);
+        $range = new Range(Extract::DAILY);
         $datetime = new \DateTime('today noon');
         $converted = $converter->convert($datetime, Extract::DAILY);
 
@@ -135,7 +135,7 @@ class OccurrenceSourceTest extends BaseTest
         /** @var Track $track */
         $track = $this->container->get(Track::class);
 
-        $range = new ExtractRange(Extract::WEEKLY);
+        $range = new Range(Extract::WEEKLY);
         $datetime = new \DateTime('today noon');
         $converted = $converter->convert($datetime, Extract::WEEKLY);
 
@@ -164,7 +164,7 @@ class OccurrenceSourceTest extends BaseTest
         /** @var Track $track */
         $track = $this->container->get(Track::class);
 
-        $range = new ExtractRange(Extract::MONTHLY);
+        $range = new Range(Extract::MONTHLY);
         $datetime = new \DateTime('today noon');
         $converted = $converter->convert($datetime, Extract::MONTHLY);
 
@@ -193,7 +193,7 @@ class OccurrenceSourceTest extends BaseTest
         /** @var Track $track */
         $track = $this->container->get(Track::class);
 
-        $range = new ExtractRange(Extract::YEARLY);
+        $range = new Range(Extract::YEARLY);
         $datetime = new \DateTime('today noon');
         $converted = $converter->convert($datetime, Extract::YEARLY);
 
@@ -222,7 +222,7 @@ class OccurrenceSourceTest extends BaseTest
         /** @var Track $track */
         $track = $this->container->get(Track::class);
 
-        $range = new ExtractRange(Extract::DAILY);
+        $range = new Range(Extract::DAILY);
 
         $datetime = new \DateTime('today noon');
         $datetime2 = new \DateTime('today noon + 2 hours');
@@ -257,7 +257,7 @@ class OccurrenceSourceTest extends BaseTest
         /** @var Track $track */
         $track = $this->container->get(Track::class);
 
-        $range = new ExtractRange(Extract::WEEKLY);
+        $range = new Range(Extract::WEEKLY);
 
         $datetime = new \DateTime('today noon');
         $datetime2 = new \DateTime('today noon + 2 hours');
@@ -292,7 +292,7 @@ class OccurrenceSourceTest extends BaseTest
         /** @var Track $track */
         $track = $this->container->get(Track::class);
 
-        $range = new ExtractRange(Extract::MONTHLY);
+        $range = new Range(Extract::MONTHLY);
 
         $datetime = new \DateTime('today noon');
         $datetime2 = new \DateTime('today noon + 2 hours');
@@ -327,7 +327,7 @@ class OccurrenceSourceTest extends BaseTest
         /** @var Track $track */
         $track = $this->container->get(Track::class);
 
-        $range = new ExtractRange(Extract::YEARLY);
+        $range = new Range(Extract::YEARLY);
 
         $datetime = new \DateTime('today noon');
         $datetime2 = new \DateTime('today noon + 2 hours');

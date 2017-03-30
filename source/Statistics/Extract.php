@@ -4,8 +4,8 @@ namespace Spiral\Statistics;
 
 use Spiral\Statistics\Database\Sources\OccurrenceSource;
 use Spiral\Statistics\Exceptions\InvalidExtractException;
-use Spiral\Statistics\Extract\ExtractRange;
-use Spiral\Statistics\Extract\ExtractResults;
+use Spiral\Statistics\Extract\Range;
+use Spiral\Statistics\Extract\Events;
 
 class Extract
 {
@@ -39,7 +39,7 @@ class Extract
      * @param \DateTime $end
      * @param string    $rangeValue
      * @param array     $events
-     * @return ExtractResults
+     * @return Events
      */
     public function events(
         \DateTime $start,
@@ -51,17 +51,20 @@ class Extract
             throw new InvalidExtractException('Extract events are not defined, empty array passed.');
         }
 
+        $start = clone $start;
+        $end = clone $end;
+
         //Swap start and end dates if incorrect
         if ($start > $end) {
             list($start, $end) = [$end, $start];
         }
 
-        $range = new ExtractRange($rangeValue);
-        $results = new ExtractResults($events);
+        $range = new Range($rangeValue);
+        $dataset = new Events($events);
 
         //do-while allows to add events of last interval occurrence.
         do {
-            $results->addRow($start->format($range->getFormat()));
+            $row = $dataset->addRow($start->format($range->getFormat()));
 
             $datetime = $this->converter->convert($start, $rangeValue);
 
@@ -71,13 +74,13 @@ class Extract
                         continue;
                     }
 
-                    $results->addEvent($event->name, $event->value);
+                    $row->addEvent($event->name, $event->value);
                 }
             }
 
             $start = $start->add($range->getInterval());
         } while ($start <= $end);
 
-        return $results;
+        return $dataset;
     }
 }

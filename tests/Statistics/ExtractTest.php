@@ -80,7 +80,7 @@ class ExtractTest extends BaseTest
         //test start same date
         $start = new \DateTime('today');
         $end = new \DateTime('today + 7 days');
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $start->format($range->getFormat());
@@ -93,7 +93,7 @@ class ExtractTest extends BaseTest
         //test start end date
         $start = new \DateTime('today - 7 days');
         $end = new \DateTime('today');
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $end->format($range->getFormat());
@@ -105,7 +105,7 @@ class ExtractTest extends BaseTest
 
         //test same start and end date
         $start = $end = new \DateTime('today');
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $end->format($range->getFormat());
@@ -146,7 +146,7 @@ class ExtractTest extends BaseTest
         //test start same date
         $start = new \DateTime('this Monday noon');
         $end = (new \DateTime('this Monday noon'))->add(new \DateInterval('P21D'));
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $start->format($range->getFormat());
@@ -159,7 +159,7 @@ class ExtractTest extends BaseTest
         //test start end date
         $start = (new \DateTime('this Monday noon'))->sub(new \DateInterval('P21D'));
         $end = new \DateTime('this Monday noon');
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $end->format($range->getFormat());
@@ -171,7 +171,7 @@ class ExtractTest extends BaseTest
 
         //test same start and end date
         $start = $end = new \DateTime('this Monday noon');
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $end->format($range->getFormat());
@@ -212,7 +212,7 @@ class ExtractTest extends BaseTest
         //test start same date
         $start = new \DateTime('this Monday noon');
         $end = (new \DateTime('this Monday noon'))->add(new \DateInterval('P4M'));
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $start->format($range->getFormat());
@@ -225,7 +225,7 @@ class ExtractTest extends BaseTest
         //test start end date
         $start = (new \DateTime('this Monday noon'))->sub(new \DateInterval('P4M'));
         $end = new \DateTime('this Monday noon');
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $end->format($range->getFormat());
@@ -237,7 +237,7 @@ class ExtractTest extends BaseTest
 
         //test same start and end date
         $start = $end = new \DateTime('this Monday noon');
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $end->format($range->getFormat());
@@ -278,7 +278,7 @@ class ExtractTest extends BaseTest
         //test start same date
         $start = new \DateTime('this Monday noon');
         $end = (new \DateTime('this Monday noon'))->add(new \DateInterval('P2Y'));
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $start->format($range->getFormat());
@@ -291,7 +291,7 @@ class ExtractTest extends BaseTest
         //test start end date
         $start = (new \DateTime('this Monday noon'))->sub(new \DateInterval('P2Y'));
         $end = new \DateTime('this Monday noon');
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $end->format($range->getFormat());
@@ -303,7 +303,7 @@ class ExtractTest extends BaseTest
 
         //test same start and end date
         $start = $end = new \DateTime('this Monday noon');
-        $range = new Extract\ExtractRange($rangeValue);
+        $range = new Extract\Range($rangeValue);
         $results = $extract->events(clone $start, clone $end, $rangeValue, ['event1', 'event2']);
 
         $label = $end->format($range->getFormat());
