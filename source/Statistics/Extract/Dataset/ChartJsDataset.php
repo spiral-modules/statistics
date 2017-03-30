@@ -5,30 +5,43 @@ namespace Spiral\Statistics\Extract\Dataset;
 use Spiral\Statistics\Extract\DatasetInterface;
 use Spiral\Statistics\Extract\Events\Row;
 
-class ChartDataset implements DatasetInterface
+class ChartJsDataset implements DatasetInterface
 {
+    /** @var array|Row[] */
     private $raw = [];
+
+    /** @var array */
     private $data = [];
+
+    /** @var array */
     private $params = [];
+
+    /** @var array */
     private $labels = [];
 
     /**
      * ChartDataset constructor.
      *
-     * @param Row[] $data
-     * @param array $params
-     *
-     * params is assoc array, where key is event name and value is an options array for this
-     * event dataset like: "label" => "Event Label"
+     * @param array $params - assoc array, where key is event name and value is an options array
+     *                      for this event dataset like: "label" => "Event Label", etc.
      */
-    public function __construct(array $data, array $params = [])
+    public function __construct(array $params = [])
+    {
+        $this->params = $params;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setData(array $data)
     {
         $this->raw = $data;
-        $this->params = $params;
-
         $this->convert();
     }
 
+    /**
+     * Convert to real format.
+     */
     protected function convert()
     {
         foreach ($this->raw as $row) {
@@ -36,7 +49,6 @@ class ChartDataset implements DatasetInterface
             $this->labels[] = $label;
 
             foreach ($row->getEvents() as $event => $value) {
-
                 if (!array_key_exists($event, $this->data)) {
                     if (array_key_exists($event, $this->params)) {
                         $this->data[$event] = $this->params[$event];
@@ -50,6 +62,10 @@ class ChartDataset implements DatasetInterface
         }
     }
 
+
+    /**
+     * {@inheritdoc}
+     */
     public function pack(): array
     {
         return [
