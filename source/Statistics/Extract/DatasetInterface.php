@@ -4,7 +4,15 @@ namespace Spiral\Statistics\Extract;
 
 interface DatasetInterface
 {
-    public function __construct(array $data, array $params);
+    /**
+     * @param array $data
+     */
+    public function setData(array $data);
 
+    /**
+     * Pack data to chart usage.
+     *
+     * @return array
+     */
     public function pack(): array;
 }
