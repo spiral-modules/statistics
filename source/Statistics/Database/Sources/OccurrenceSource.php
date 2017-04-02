@@ -31,10 +31,10 @@ class OccurrenceSource extends RecordSource
     }
 
     /**
-     * @param \DateTime $datetime
+     * @param \DateTimeInterface $datetime
      * @return Occurrence|null
      */
-    public function findByTimestamp(\DateTime $datetime)
+    public function findByTimestamp(\DateTimeInterface $datetime)
     {
         $entity = $this->findOne(['timestamp' => $datetime]);
 
@@ -56,10 +56,10 @@ class OccurrenceSource extends RecordSource
     }
 
     /**
-     * @param \DateTime $datetime
+     * @param \DateTimeInterface $datetime
      * @return Occurrence
      */
-    public function createFromTimestamp(\DateTime $datetime): Occurrence
+    public function createFromTimestamp(\DateTimeInterface $datetime): Occurrence
     {
         $entity = $this->create([
             'timestamp'  => $this->converter->convert($datetime),
@@ -78,13 +78,36 @@ class OccurrenceSource extends RecordSource
      * @param array              $events
      * @return RecordSelector|Occurrence[]
      */
-    public function findByRange(
+    public function findWithRange(
         Range $range,
         \DateTimeInterface $timestamp,
         array $events = []
     ): RecordSelector
     {
         $selector = $this->find([$range->getField() => $timestamp]);
+
+        if (!empty($events)) {
+            $selector->with(
+                'events',
+                ['where' => ['{@}.name' => ['IN' => new Parameter($events)]]]
+            );
+        }
+
+        return $selector;
+    }
+
+    public function findByGroupedInterval(
+        string $periodField,
+        \DateTimeInterface $periodValue,
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        array $events = []
+    ): RecordSelector
+    {
+        $selector = $this->find([
+            $periodField => $periodValue,
+            'timestamp'  => ['between' => [$start, $end]]
+        ]);
 
         if (!empty($events)) {
             $selector->with(

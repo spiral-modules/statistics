@@ -3,19 +3,12 @@
 namespace Spiral\Statistics;
 
 use Spiral\Statistics\Database\Sources\OccurrenceSource;
-use Spiral\Statistics\Exceptions\InvalidExtractException;
+use Spiral\Statistics\Exceptions\EmptyExtractEventsException;
 use Spiral\Statistics\Extract\Range;
 use Spiral\Statistics\Extract\Events;
 
 class Extract
 {
-    const DAILY   = 'day';
-    const WEEKLY  = 'week';
-    const MONTHLY = 'month';
-    const YEARLY  = 'year';
-
-    const RANGES = [self::DAILY, self::WEEKLY, self::MONTHLY, self::YEARLY];
-
     /** @var OccurrenceSource */
     protected $source;
 
@@ -35,42 +28,52 @@ class Extract
     }
 
     /**
-     * @param \DateTime $start
-     * @param \DateTime $end
-     * @param string    $rangeValue
-     * @param array     $events
+     * @param \DateTime          $start
+     * @param \DateTimeInterface $end
+     * @param string             $rangeInput
+     * @param array              $eventsInput
      * @return Events
      */
     public function events(
         \DateTime $start,
-        \DateTime $end,
-        string $rangeValue,
-        array $events
-    ) {
-        if (empty($events)) {
-            throw new InvalidExtractException('Extract events are not defined, empty array passed.');
+        \DateTimeInterface $end,
+        string $rangeInput,
+        array $eventsInput
+    ): Events
+    {
+        if (empty($eventsInput)) {
+            throw new EmptyExtractEventsException();
         }
 
-        $start = clone $start;
-        $end = clone $end;
+        $start = $this->converter->immutable($start);
+        $end = $this->converter->immutable($end);
 
         //Swap start and end dates if incorrect
         if ($start > $end) {
             list($start, $end) = [$end, $start];
         }
 
-        $range = new Range($rangeValue);
-        $dataset = new Events($events);
+        $range = new Range($rangeInput);
+        $events = new Events($eventsInput);
+
+        /** @var \DateTime $iteratedDatetime */
+        $iteratedDatetime = clone $start;
 
         //do-while allows to add events of last interval occurrence.
         do {
-            $row = $dataset->addRow($start->format($range->getFormat()));
+            $row = $events->addRow($iteratedDatetime->format($range->getFormat()));
 
-            $datetime = $this->converter->convert($start, $rangeValue);
+            $datetime = $this->converter->convert($iteratedDatetime, $rangeInput);
 
-            foreach ($this->source->findByRange($range, $datetime, $events) as $occurrence) {
+            foreach ($this->source->findByGroupedInterval(
+                $range->getField(),
+                $datetime,
+                $start,
+                $end,
+                $eventsInput
+            ) as $occurrence) {
                 foreach ($occurrence->events as $event) {
-                    if (!in_array($event->name, $events)) {
+                    if (!in_array($event->name, $eventsInput)) {
                         continue;
                     }
 
@@ -78,9 +81,9 @@ class Extract
                 }
             }
 
-            $start = $start->add($range->getInterval());
-        } while ($start <= $end);
+            $iteratedDatetime = $iteratedDatetime->add($range->getInterval());
+        } while ($iteratedDatetime <= $end);
 
-        return $dataset;
+        return $events;
     }
 }

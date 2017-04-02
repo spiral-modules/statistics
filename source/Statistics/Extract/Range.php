@@ -7,6 +7,13 @@ use Spiral\Statistics\Extract;
 
 class Range
 {
+    const DAILY   = 'day';
+    const WEEKLY  = 'week';
+    const MONTHLY = 'month';
+    const YEARLY  = 'year';
+
+    const RANGES = [self::DAILY, self::WEEKLY, self::MONTHLY, self::YEARLY];
+
     /** @var string */
     private $range;
 
@@ -26,7 +33,7 @@ class Range
      */
     public function __construct(string $range)
     {
-        if (!in_array($range, Extract::RANGES)) {
+        if (!in_array($range, self::RANGES)) {
             throw new InvalidExtractRangeException($range);
         }
 
@@ -45,19 +52,19 @@ class Range
         $interval = null;
 
         switch ($range) {
-            case Extract::DAILY:
+            case self::DAILY:
                 $interval = 'P1D';
                 break;
 
-            case Extract::WEEKLY:
+            case self::WEEKLY:
                 $interval = 'P7D';
                 break;
 
-            case Extract::MONTHLY:
+            case self::MONTHLY:
                 $interval = 'P1M';
                 break;
 
-            case Extract::YEARLY:
+            case self::YEARLY:
                 $interval = 'P1Y';
                 break;
         }
@@ -74,19 +81,19 @@ class Range
         $format = null;
 
         switch ($range) {
-            case Extract::DAILY:
+            case self::DAILY:
                 $format = 'M, d Y';
                 break;
 
-            case Extract::WEEKLY:
+            case self::WEEKLY:
                 $format = 'W, Y';
                 break;
 
-            case Extract::MONTHLY:
+            case self::MONTHLY:
                 $format = 'M, Y';
                 break;
 
-            case Extract::YEARLY:
+            case self::YEARLY:
                 $format = 'Y';
                 break;
         }
@@ -103,19 +110,19 @@ class Range
         $field = null;
 
         switch ($range) {
-            case Extract::DAILY:
+            case self::DAILY:
                 $field = 'day_mark';
                 break;
 
-            case Extract::WEEKLY:
+            case self::WEEKLY:
                 $field = 'week_mark';
                 break;
 
-            case Extract::MONTHLY:
+            case self::MONTHLY:
                 $field = 'month_mark';
                 break;
 
-            case Extract::YEARLY:
+            case self::YEARLY:
                 $field = 'year_mark';
                 break;
         }

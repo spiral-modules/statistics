@@ -38,7 +38,7 @@ class Events
      * @param DatasetInterface $dataset
      * @return DatasetInterface
      */
-    public function getDataset(DatasetInterface $dataset):DatasetInterface
+    public function prepare(DatasetInterface $dataset): DatasetInterface
     {
         $dataset->setData($this->rows);
 

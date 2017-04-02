@@ -2,13 +2,18 @@
 
 namespace Spiral\Statistics\Extract\Events;
 
-use Spiral\Statistics\Exceptions\InvalidExtractResultsException;
+use Spiral\Statistics\Exceptions\InvalidExtractEventException;
 
 class Row
 {
+    /** @var string */
     private $label;
+
+    /** @var array */
     private $events;
-    private $records;
+
+    /** @var array */
+    private $records = [];
 
     /**
      * Row constructor.
@@ -27,7 +32,7 @@ class Row
     /**
      * Fill blank data.
      */
-    public function fill()
+    private function fill()
     {
         foreach ($this->events as $event) {
             $this->records[$event] = 0;
@@ -51,16 +56,15 @@ class Row
     }
 
     /**
+     * Add value to event.
+     *
      * @param string $event
      * @param float  $value
      */
     public function addEvent(string $event, float $value)
     {
         if (!isset($this->records[$event])) {
-            throw new InvalidExtractResultsException(sprintf(
-                'Unknown event "%s", should be passed in construct.',
-                $event
-            ));
+            throw new InvalidExtractEventException($event);
         }
 
         $this->records[$event] += $value;
