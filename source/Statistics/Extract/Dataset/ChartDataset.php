@@ -2,17 +2,10 @@
 
 namespace Spiral\Statistics\Extract\Dataset;
 
-use Spiral\Statistics\Extract\DatasetInterface;
-use Spiral\Statistics\Extract\Events\Row;
+use Spiral\Statistics\Extract\Events;
 
-class ChartJsDataset implements DatasetInterface
+class ChartDataset extends AbstractDataset
 {
-    /** @var array|Row[] */
-    private $raw = [];
-
-    /** @var array */
-    private $data = [];
-
     /** @var array */
     private $params = [];
 
@@ -28,15 +21,6 @@ class ChartJsDataset implements DatasetInterface
     public function __construct(array $params = [])
     {
         $this->params = $params;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setData(array $data)
-    {
-        $this->raw = $data;
-        $this->convert();
     }
 
     /**

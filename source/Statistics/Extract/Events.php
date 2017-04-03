@@ -9,7 +9,7 @@ class Events
     /** @var array */
     protected $events = [];
 
-    /** @var array */
+    /** @var Row[] */
     protected $rows = [];
 
     /**
@@ -35,13 +35,10 @@ class Events
     }
 
     /**
-     * @param DatasetInterface $dataset
-     * @return DatasetInterface
+     * @return Row[]
      */
-    public function prepare(DatasetInterface $dataset): DatasetInterface
+    public function getRows(): array
     {
-        $dataset->setData($this->rows);
-
-        return $dataset;
+        return $this->rows;
     }
 }

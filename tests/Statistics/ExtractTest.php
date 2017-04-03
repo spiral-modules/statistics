@@ -24,6 +24,18 @@ class ExtractTest extends BaseTest
         $extract->events(new \DateTime(), new \DateTime(), 'range', []);
     }
 
+    public function testEvents()
+    {
+        $extract = $this->getExtract();
+        $events = $extract->events(
+            new \DateTime(),
+            new \DateTime(),
+            Extract\Range::DAILY, ['event']
+        );
+
+        $this->assertInstanceOf(Extract\Events::class, $events);
+    }
+
     public function testDateSwap()
     {
         $extract = $this->getExtract();

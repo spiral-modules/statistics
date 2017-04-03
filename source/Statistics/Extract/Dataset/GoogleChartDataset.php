@@ -2,19 +2,12 @@
 
 namespace Spiral\Statistics\Extract\Dataset;
 
-use Spiral\Statistics\Extract\DatasetInterface;
-use Spiral\Statistics\Extract\Events\Row;
+use Spiral\Statistics\Extract\Events;
 
-class GoogleChartDataset implements DatasetInterface
+class GoogleChartDataset extends AbstractDataset
 {
     /** @var array */
-    private $labels;
-
-    /** @var array */
-    private $data;
-
-    /** @var array|Row[] */
-    private $raw;
+    private $labels = [];
 
     /**
      * GoogleChartDataset constructor.
@@ -24,15 +17,6 @@ class GoogleChartDataset implements DatasetInterface
     public function __construct(array $labels)
     {
         $this->labels = $labels;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setData(array $data)
-    {
-        $this->raw = $data;
-        $this->convert();
     }
 
     /**
@@ -54,6 +38,9 @@ class GoogleChartDataset implements DatasetInterface
      */
     public function pack(): array
     {
-        return [$this->labels] + $this->data;
+        $data = $this->data;
+        array_unshift($data, $this->labels);
+
+        return $data;
     }
 }

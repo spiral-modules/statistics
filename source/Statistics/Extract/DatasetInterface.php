@@ -7,9 +7,9 @@ interface DatasetInterface
     /**
      * Set chart dataset data. Best place to convert it for current chart format.
      *
-     * @param array $data
+     * @param Events $events
      */
-    public function setData(array $data);
+    public function setData(Events $events);
 
     /**
      * Pack data to chart usage.
