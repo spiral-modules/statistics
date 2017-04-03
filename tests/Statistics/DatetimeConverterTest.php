@@ -10,8 +10,7 @@ class DatetimeConverterTest extends BaseTest
 {
     public function testImmutable()
     {
-        /** @var DatetimeConverter $converter */
-        $converter = $this->container->get(DatetimeConverter::class);
+        $converter = $this->getConverter();
 
         $datetime = new \DateTime();
         $immutable = $converter->immutable($datetime);
@@ -28,8 +27,7 @@ class DatetimeConverterTest extends BaseTest
 
     public function testImmutableViaConvert()
     {
-        /** @var DatetimeConverter $converter */
-        $converter = $this->container->get(DatetimeConverter::class);
+        $converter = $this->getConverter();
 
         $datetime1 = new \DateTime();
         $datetime2 = $converter->convert($datetime1, Range::DAILY);
@@ -64,8 +62,7 @@ class DatetimeConverterTest extends BaseTest
 
     public function testConvert()
     {
-        /** @var DatetimeConverter $converter */
-        $converter = $this->container->get(DatetimeConverter::class);
+        $converter = $this->getConverter();
 
         $datetime = new \DateTime('now');
         $immutable = new \DateTimeImmutable('now');

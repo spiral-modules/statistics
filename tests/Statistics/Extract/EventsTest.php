@@ -2,7 +2,6 @@
 
 namespace Spiral\Tests\Statistics\Extract;
 
-use Mockery\MockInterface;
 use Spiral\Statistics\Extract\DatasetInterface;
 use Spiral\Statistics\Extract\Events;
 use Spiral\Tests\BaseTest;
@@ -22,10 +21,10 @@ class EventsTest extends BaseTest
     {
         $events = new Events([]);
 
-        /** @var DatasetInterface|MockInterface $dataset */
         $dataset = \Mockery::mock(DatasetInterface::class);
         $dataset->shouldReceive('setData');
 
+        /** @var DatasetInterface $dataset */
         $result = $events->prepare($dataset);
 
         $this->assertNotEmpty($result);

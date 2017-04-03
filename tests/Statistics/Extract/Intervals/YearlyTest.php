@@ -4,7 +4,7 @@ namespace Spiral\Tests\Statistics\Extract\Intervals;
 
 use Spiral\Statistics\Extract;
 
-class Yearly extends AbstractInterval
+class YearlyTest extends AbstractInterval
 {
     const RANGE          = Extract\Range::YEARLY;
     const RANGE_FIELD    = 'year_mark';

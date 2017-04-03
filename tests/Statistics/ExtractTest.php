@@ -20,18 +20,14 @@ class ExtractTest extends BaseTest
      */
     public function testEmptyEvents()
     {
-        /** @var Extract $extract */
-        $extract = $this->container->get(Extract::class);
-
+        $extract = $this->getExtract();
         $extract->events(new \DateTime(), new \DateTime(), 'range', []);
     }
 
     public function testDateSwap()
     {
-        /** @var Extract $extract */
-        $extract = $this->container->get(Extract::class);
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $extract = $this->getExtract();
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));

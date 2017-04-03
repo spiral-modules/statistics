@@ -59,7 +59,7 @@ abstract class AbstractInterval extends BaseTest
     ): RecordSelector
     {
         if (empty($this->source)) {
-            $this->source = $this->container->get(OccurrenceSource::class);
+            $this->source =  $this->getSource();
         }
 
         return $this->source->findByGroupedInterval(
@@ -73,10 +73,8 @@ abstract class AbstractInterval extends BaseTest
 
     public function testSamePeriodOccurrenceSourceFindByGroupedInterval()
     {
-        /** @var DatetimeConverter $converter */
-        $converter = $this->container->get(DatetimeConverter::class);
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $converter = $this->getConverter();
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -140,10 +138,8 @@ abstract class AbstractInterval extends BaseTest
 
     public function testAnotherPeriodOccurrenceSourceFindByGroupedInterval()
     {
-        /** @var DatetimeConverter $converter */
-        $converter = $this->container->get(DatetimeConverter::class);
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $converter = $this->getConverter();
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));

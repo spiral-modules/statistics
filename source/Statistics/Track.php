@@ -88,6 +88,7 @@ class Track
      */
     protected function addEvent(Occurrence $occurrence, string $name, float $value)
     {
+        /** @var Event $event */
         $event = $this->eventSource->create(compact('name', 'value'));
         $occurrence->events->add($event);
     }

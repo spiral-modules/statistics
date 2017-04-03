@@ -2,14 +2,9 @@
 
 namespace Spiral\Tests\Statistics\Extract\Intervals;
 
-use Spiral\Statistics\Database\Event;
-use Spiral\Statistics\Database\Occurrence;
-use Spiral\Statistics\Database\Sources\OccurrenceSource;
-use Spiral\Statistics\DatetimeConverter;
 use Spiral\Statistics\Extract;
-use Spiral\Statistics\Track;
 
-class Daily extends AbstractInterval
+class DailyTest extends AbstractInterval
 {
     const RANGE          = Extract\Range::DAILY;
     const RANGE_FIELD    = 'day_mark';

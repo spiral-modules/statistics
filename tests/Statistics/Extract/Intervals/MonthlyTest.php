@@ -2,14 +2,9 @@
 
 namespace Spiral\Tests\Statistics\Extract\Intervals;
 
-use Spiral\Statistics\Database\Event;
-use Spiral\Statistics\Database\Occurrence;
-use Spiral\Statistics\Database\Sources\OccurrenceSource;
-use Spiral\Statistics\DatetimeConverter;
 use Spiral\Statistics\Extract;
-use Spiral\Statistics\Track;
 
-class Monthly extends AbstractInterval
+class MonthlyTest extends AbstractInterval
 {
     const RANGE          = Extract\Range::MONTHLY;
     const RANGE_FIELD    = 'month_mark';

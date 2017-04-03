@@ -19,10 +19,8 @@ class OccurrenceSourceTest extends BaseTest
 {
     public function testFindByTimestamp()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
-        /** @var OccurrenceSource $source */
-        $source = $this->container->get(OccurrenceSource::class);
+        $track = $this->getTrack();
+        $source = $this->getSource();
 
         $datetime = new \DateTime('now');
         $occurrence = $source->findByTimestamp($datetime);
@@ -39,8 +37,7 @@ class OccurrenceSourceTest extends BaseTest
 
     public function testGetByTimestamp()
     {
-        /** @var OccurrenceSource $source */
-        $source = $this->container->get(OccurrenceSource::class);
+        $source = $this->getSource();
 
         $datetime = new \DateTime('now');
         $occurrence = $source->findByTimestamp($datetime);
@@ -58,8 +55,7 @@ class OccurrenceSourceTest extends BaseTest
 
     public function testCreateFromTimestamp()
     {
-        /** @var OccurrenceSource $source */
-        $source = $this->container->get(OccurrenceSource::class);
+        $source = $this->getSource();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
 
@@ -74,10 +70,8 @@ class OccurrenceSourceTest extends BaseTest
 
     public function testDataIntegrity()
     {
-        /** @var OccurrenceSource $source */
-        $source = $this->container->get(OccurrenceSource::class);
-        /** @var DatetimeConverter $converter */
-        $converter = $this->container->get(DatetimeConverter::class);
+        $source = $this->getSource();
+        $converter = $this->getConverter();
 
         $datetime = new \DateTime('now');
         $occurrence = $source->createFromTimestamp($datetime);
