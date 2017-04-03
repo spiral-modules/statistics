@@ -73,29 +73,13 @@ class OccurrenceSource extends RecordSource
     }
 
     /**
-     * @param Range              $range
-     * @param \DateTimeInterface $timestamp
+     * @param string             $periodField
+     * @param \DateTimeInterface $periodValue
+     * @param \DateTimeInterface $start
+     * @param \DateTimeInterface $end
      * @param array              $events
-     * @return RecordSelector|Occurrence[]
+     * @return RecordSelector
      */
-    public function findWithRange(
-        Range $range,
-        \DateTimeInterface $timestamp,
-        array $events = []
-    ): RecordSelector
-    {
-        $selector = $this->find([$range->getField() => $timestamp]);
-
-        if (!empty($events)) {
-            $selector->with(
-                'events',
-                ['where' => ['{@}.name' => ['IN' => new Parameter($events)]]]
-            );
-        }
-
-        return $selector;
-    }
-
     public function findByGroupedInterval(
         string $periodField,
         \DateTimeInterface $periodValue,

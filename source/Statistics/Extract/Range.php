@@ -38,96 +38,47 @@ class Range
         }
 
         $this->range = $range;
-        $this->interval = $this->calcInterval($range);
-        $this->format = $this->defineDateFormat($range);
-        $this->field = $this->defineSearchQueryField($range);
+        $this->define();
     }
 
     /**
-     * @param string $range
-     * @return \DateInterval
+     * Define range values.
      */
-    protected function calcInterval(string $range): \DateInterval
+    protected function define()
     {
         $interval = null;
-
-        switch ($range) {
-            case self::DAILY:
-                $interval = 'P1D';
-                break;
-
-            case self::WEEKLY:
-                $interval = 'P7D';
-                break;
-
-            case self::MONTHLY:
-                $interval = 'P1M';
-                break;
-
-            case self::YEARLY:
-                $interval = 'P1Y';
-                break;
-        }
-
-        return new \DateInterval($interval);
-    }
-
-    /**
-     * @param string $range
-     * @return string
-     */
-    protected function defineDateFormat(string $range): string
-    {
         $format = null;
-
-        switch ($range) {
-            case self::DAILY:
-                $format = 'M, d Y';
-                break;
-
-            case self::WEEKLY:
-                $format = 'W, Y';
-                break;
-
-            case self::MONTHLY:
-                $format = 'M, Y';
-                break;
-
-            case self::YEARLY:
-                $format = 'Y';
-                break;
-        }
-
-        return $format;
-    }
-
-    /**
-     * @param string $range
-     * @return string
-     */
-    protected function defineSearchQueryField(string $range): string
-    {
         $field = null;
 
-        switch ($range) {
+        switch ($this->range) {
             case self::DAILY:
+                $interval = 'P1D';
+                $format = 'M, d Y';
                 $field = 'day_mark';
                 break;
 
             case self::WEEKLY:
+                $interval = 'P7D';
+                $format = 'W, Y';
                 $field = 'week_mark';
                 break;
 
             case self::MONTHLY:
+                $interval = 'P1M';
+                $format = 'M, Y';
                 $field = 'month_mark';
                 break;
 
             case self::YEARLY:
+                $interval = 'P1Y';
+                $format = 'Y';
                 $field = 'year_mark';
                 break;
         }
 
-        return $field;
+        $this->interval = new \DateInterval($interval);
+        $this->format = $format;
+        $this->field = $field;
     }
 
     /**

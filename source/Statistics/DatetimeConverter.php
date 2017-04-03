@@ -26,13 +26,11 @@ class DatetimeConverter
                 return $datetime
                     ->sub(new \DateInterval('P' . $weekSub . 'D'))
                     ->setTime(0, 0, 0);
-                break;
 
             case 'month':
                 return $datetime
                     ->setDate($datetime->format('Y'), $datetime->format('m'), 1)
                     ->setTime(0, 0, 0);
-                break;
 
             case 'year':
                 return $datetime
