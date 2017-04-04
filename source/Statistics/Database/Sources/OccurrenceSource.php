@@ -8,7 +8,7 @@ use Spiral\ORM\Entities\RecordSource;
 use Spiral\ORM\ORMInterface;
 use Spiral\Statistics\Database\Occurrence;
 use Spiral\Statistics\DatetimeConverter;
-use Spiral\Statistics\Extract\ExtractRange;
+use Spiral\Statistics\Extract\Range;
 
 class OccurrenceSource extends RecordSource
 {
@@ -31,10 +31,10 @@ class OccurrenceSource extends RecordSource
     }
 
     /**
-     * @param \DateTime $datetime
+     * @param \DateTimeInterface $datetime
      * @return Occurrence|null
      */
-    public function findByTimestamp(\DateTime $datetime)
+    public function findByTimestamp(\DateTimeInterface $datetime)
     {
         $entity = $this->findOne(['timestamp' => $datetime]);
 
@@ -56,10 +56,10 @@ class OccurrenceSource extends RecordSource
     }
 
     /**
-     * @param \DateTime $datetime
+     * @param \DateTimeInterface $datetime
      * @return Occurrence
      */
-    public function createFromTimestamp(\DateTime $datetime): Occurrence
+    public function createFromTimestamp(\DateTimeInterface $datetime): Occurrence
     {
         $entity = $this->create([
             'timestamp'  => $this->converter->convert($datetime),
@@ -73,18 +73,25 @@ class OccurrenceSource extends RecordSource
     }
 
     /**
-     * @param ExtractRange       $range
-     * @param \DateTimeInterface $timestamp
+     * @param string             $periodField
+     * @param \DateTimeInterface $periodValue
+     * @param \DateTimeInterface $start
+     * @param \DateTimeInterface $end
      * @param array              $events
-     * @return RecordSelector|Occurrence[]
+     * @return RecordSelector
      */
-    public function findByRange(
-        ExtractRange $range,
-        \DateTimeInterface $timestamp,
+    public function findByGroupedInterval(
+        string $periodField,
+        \DateTimeInterface $periodValue,
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
         array $events = []
     ): RecordSelector
     {
-        $selector = $this->find([$range->getField() => $timestamp]);
+        $selector = $this->find([
+            $periodField => $periodValue,
+            'timestamp'  => ['between' => [$start, $end]]
+        ]);
 
         if (!empty($events)) {
             $selector->with(

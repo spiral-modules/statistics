@@ -3,41 +3,97 @@
 namespace Spiral\Tests\Statistics;
 
 use Spiral\Statistics\DatetimeConverter;
+use Spiral\Statistics\Extract\Range;
 use Spiral\Tests\BaseTest;
 
 class DatetimeConverterTest extends BaseTest
 {
-    public function testMe()
+    public function testImmutable()
     {
-        /** @var DatetimeConverter $converter */
-        $converter = $this->container->get(DatetimeConverter::class);
+        $converter = $this->getConverter();
+
+        $datetime = new \DateTime();
+        $immutable = $converter->immutable($datetime);
+
+        $this->assertInstanceOf(\DateTimeImmutable::class, $immutable);
+        $this->assertNotSame($datetime, $immutable);
+
+        $datetime = new \DateTimeImmutable();
+        $immutable = $converter->immutable($datetime);
+
+        $this->assertInstanceOf(\DateTimeImmutable::class, $immutable);
+        $this->assertSame($datetime, $immutable);
+    }
+
+    public function testImmutableViaConvert()
+    {
+        $converter = $this->getConverter();
+
+        $datetime1 = new \DateTime();
+        $datetime2 = $converter->convert($datetime1, Range::DAILY);
+        $datetime3 = $converter->convert($datetime1, Range::WEEKLY);
+        $datetime4 = $converter->convert($datetime1, Range::MONTHLY);
+        $datetime5 = $converter->convert($datetime1, Range::YEARLY);
+        $datetime6 = $converter->convert($datetime1, 'some-unsupported-range');
+
+        //Any other will be immutable also
+        $this->assertInstanceOf(\DateTimeImmutable::class, $datetime6);
+
+        $this->assertNotSame($datetime1, $datetime2);
+        $this->assertNotSame($datetime1, $datetime3);
+        $this->assertNotSame($datetime1, $datetime4);
+        $this->assertNotSame($datetime1, $datetime5);
+        $this->assertNotSame($datetime1, $datetime6);
+
+        $this->assertNotSame($datetime2, $datetime3);
+        $this->assertNotSame($datetime2, $datetime4);
+        $this->assertNotSame($datetime2, $datetime5);
+        $this->assertNotSame($datetime2, $datetime6);
+
+        $this->assertNotSame($datetime3, $datetime4);
+        $this->assertNotSame($datetime3, $datetime5);
+        $this->assertNotSame($datetime3, $datetime6);
+
+        $this->assertNotSame($datetime4, $datetime5);
+        $this->assertNotSame($datetime4, $datetime6);
+
+        $this->assertNotSame($datetime5, $datetime6);
+    }
+
+    public function testConvert()
+    {
+        $converter = $this->getConverter();
 
         $datetime = new \DateTime('now');
-        $datetimeI = new \DateTimeImmutable('now');
+        $immutable = new \DateTimeImmutable('now');
 
-        $formatM = $datetimeI->format('m');
-        $formatY = $datetimeI->format('Y');
-        $weekSub = $datetimeI->format('w') ? $datetimeI->format('w') - 1 : 6;
+        $formatMonth = $immutable->format('m');
+        $formatYear = $immutable->format('Y');
+        $weekDay = $immutable->format('w') ? $immutable->format('w') - 1 : 6;
 
         $this->assertEquals(
-            $datetimeI->getTimestamp(),
+            $immutable->getTimestamp(),
             $converter->convert($datetime)->getTimestamp()
         );
         $this->assertEquals(
-            $datetimeI->setTime(0, 0, 0),
-            $converter->convert($datetime, 'day')
+            $immutable->setTime(0, 0, 0),
+            $converter->convert($datetime, Range::DAILY)
         );
         $this->assertEquals(
-            $datetimeI->sub(new \DateInterval('P' . $weekSub . 'D'))->setTime(0, 0, 0),
-            $converter->convert($datetime, 'week')
+            $immutable->sub(new \DateInterval('P' . $weekDay . 'D'))->setTime(0, 0, 0),
+            $converter->convert($datetime, Range::WEEKLY)
         );
         $this->assertEquals(
-            $datetimeI->setDate($formatY, $formatM, 1)->setTime(0, 0, 0),
-            $converter->convert($datetime, 'month')
+            $immutable->setDate($formatYear, $formatMonth, 1)->setTime(0, 0, 0),
+            $converter->convert($datetime, Range::MONTHLY)
         );
         $this->assertEquals(
-            $datetimeI->setDate($formatY, 1, 1)->setTime(0, 0, 0),
-            $converter->convert($datetime, 'year')
+            $immutable->setDate($formatYear, 1, 1)->setTime(0, 0, 0),
+            $converter->convert($datetime, Range::YEARLY)
+        );
+        $this->assertEquals(
+            $immutable,
+            $converter->convert($datetime, 'some-unsupported-range')
         );
     }
 }

@@ -4,7 +4,6 @@ namespace Spiral\Tests\Statistics;
 
 use Spiral\Statistics\Database\Event;
 use Spiral\Statistics\Database\Occurrence;
-use Spiral\Statistics\Track;
 use Spiral\Tests\BaseTest;
 
 class DatetimeTest extends BaseTest
@@ -14,8 +13,7 @@ class DatetimeTest extends BaseTest
      */
     public function testEventDatetime()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -33,8 +31,7 @@ class DatetimeTest extends BaseTest
      */
     public function testEventsDatetime()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));

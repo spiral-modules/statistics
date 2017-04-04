@@ -5,37 +5,50 @@ namespace Spiral\Statistics;
 class DatetimeConverter
 {
     /**
-     * @param \DateTime   $datetime
-     * @param string|null $interval
-     * @return \DateTime
+     * @param \DateTimeInterface $datetime
+     * @param string|null        $interval
+     * @return \DateTimeImmutable
      */
-    public function convert(\DateTime $datetime, string $interval = null): \DateTime
+    public function convert(
+        \DateTimeInterface $datetime,
+        string $interval = null
+    ): \DateTimeImmutable
     {
-        $datetime = clone $datetime;
+        $datetime = $this->immutable($datetime);
 
         switch ($interval) {
             case 'day':
-                $datetime->setTime(0, 0, 0);
-                break;
+                return $datetime->setTime(0, 0, 0);
 
             case 'week':
                 $weekSub = $datetime->format('w') ? $datetime->format('w') - 1 : 6;
-                $datetime
-                    ->sub(new \DateInterval('P' . $weekSub . 'D'))->setTime(0, 0, 0)
+
+                return $datetime
+                    ->sub(new \DateInterval('P' . $weekSub . 'D'))
                     ->setTime(0, 0, 0);
-                break;
 
             case 'month':
-                $datetime
+                return $datetime
                     ->setDate($datetime->format('Y'), $datetime->format('m'), 1)
                     ->setTime(0, 0, 0);
-                break;
 
             case 'year':
-                $datetime
+                return $datetime
                     ->setDate($datetime->format('Y'), 1, 1)
                     ->setTime(0, 0, 0);
-                break;
+        }
+
+        return $datetime;
+    }
+
+    /**
+     * @param \DateTimeInterface $datetime
+     * @return \DateTimeImmutable
+     */
+    public function immutable(\DateTimeInterface $datetime): \DateTimeImmutable
+    {
+        if ($datetime instanceof \DateTime) {
+            return \DateTimeImmutable::createFromMutable($datetime);
         }
 
         return $datetime;

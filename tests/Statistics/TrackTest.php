@@ -4,15 +4,13 @@ namespace Spiral\Tests\Statistics;
 
 use Spiral\Statistics\Database\Event;
 use Spiral\Statistics\Database\Occurrence;
-use Spiral\Statistics\Track;
 use Spiral\Tests\BaseTest;
 
 class TrackTest extends BaseTest
 {
     public function testEvent()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -25,8 +23,7 @@ class TrackTest extends BaseTest
 
     public function testEvents()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -42,8 +39,7 @@ class TrackTest extends BaseTest
 
     public function testEmptyEvents()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -56,8 +52,7 @@ class TrackTest extends BaseTest
 
     public function testEventInc()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -78,8 +73,7 @@ class TrackTest extends BaseTest
 
     public function testEventsInc()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -104,8 +98,7 @@ class TrackTest extends BaseTest
 
     public function testSignEventInc()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -126,8 +119,7 @@ class TrackTest extends BaseTest
 
     public function testSignEventsInc()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -152,8 +144,7 @@ class TrackTest extends BaseTest
 
     public function testZeroEventInc()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -174,8 +165,7 @@ class TrackTest extends BaseTest
 
     public function testZeroEventsInc()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -200,8 +190,7 @@ class TrackTest extends BaseTest
 
     public function testNewEventRelation()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));
@@ -227,8 +216,7 @@ class TrackTest extends BaseTest
 
     public function testNewEventsRelation()
     {
-        /** @var Track $track */
-        $track = $this->container->get(Track::class);
+        $track = $this->getTrack();
 
         $this->assertCount(0, $this->orm->source(Occurrence::class));
         $this->assertCount(0, $this->orm->source(Event::class));

@@ -7,14 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
+use Spiral\Core\Core;
 use Spiral\Core\Traits\SharedTrait;
-use Spiral\Database\Builders\SelectQuery;
-use Spiral\Debug\Snapshot;
-use Spiral\Snapshotter\Bootloaders\FileSnapshotterBootloader;
-use Spiral\Snapshotter\DelegateSnapshot;
-use Spiral\Snapshotter\AggregationHandler\Database\SnapshotRecord;
-use Spiral\Snapshotter\AggregationHandler;
-use Spiral\Snapshotter\FileHandler;
+use Spiral\Statistics\Database\Sources\OccurrenceSource;
+use Spiral\Statistics\DatetimeConverter;
+use Spiral\Statistics\Extract;
+use Spiral\Statistics\Track;
 
 /**
  * @property \Spiral\Core\MemoryInterface             $memory
@@ -50,9 +48,21 @@ abstract class BaseTest extends TestCase
     use SharedTrait;
 
     /**
-     * @var TestApplication
+     * @var TestApplication|Core
      */
     protected $app;
+
+    /** @var Track */
+    protected $track;
+
+    /** @var OccurrenceSource */
+    protected $source;
+
+    /** @var Extract */
+    protected $extract;
+
+    /** @var DatetimeConverter */
+    protected $converter;
 
     public function setUp()
     {
@@ -144,55 +154,50 @@ abstract class BaseTest extends TestCase
     }
 
     /**
-     * @param string $message
-     * @param int    $code
-     * @return Snapshot
+     * @return Track
      */
-    protected function makeSnapshot(string $message, int $code): Snapshot
+    protected function getTrack(): Track
     {
-        return $this->factory->make(Snapshot::class, [
-            'exception' => new \Error($message, $code)
-        ]);
+        if (empty($this->track)) {
+            $this->track = $this->container->get(Track::class);
+        }
+
+        return $this->track;
     }
 
     /**
-     * @param Snapshot $snapshot
-     * @param bool     $report
-     * @return SnapshotRecord
+     * @return Extract
      */
-    protected function handleSnapshot(Snapshot $snapshot, bool $report = true): SnapshotRecord
+    protected function getExtract(): Extract
     {
-        /** @var DelegateSnapshot $delegate */
-        $delegate = $this->factory->make(DelegateSnapshot::class, [
-            'exception' => $snapshot->getException(),
-            'handler'   => bind(AggregationHandler::class)
-        ]);
-
-        if ($report) {
-            $delegate->report();
+        if (empty($this->extract)) {
+            $this->extract = $this->container->get(Extract::class);
         }
 
-        return $this->orm->source(SnapshotRecord::class)->findOne(
-            [],
-            ['id' => SelectQuery::SORT_DESC]
-        );
+        return $this->extract;
     }
 
     /**
-     * @param Snapshot $snapshot
-     * @param bool     $report
+     * @return DatetimeConverter
      */
-    protected function handleFileSnapshot(Snapshot $snapshot, bool $report = true)
+    protected function getConverter(): DatetimeConverter
     {
-        $this->app->getBootloader()->bootload([FileSnapshotterBootloader::class]);
-
-        /** @var DelegateSnapshot $delegate */
-        $delegate = $this->factory->make(DelegateSnapshot::class, [
-            'exception' => $snapshot->getException()
-        ]);
-
-        if ($report) {
-            $delegate->report();
+        if (empty($this->converter)) {
+            $this->converter = $this->container->get(DatetimeConverter::class);
         }
+
+        return $this->converter;
+    }
+
+    /**
+     * @return OccurrenceSource
+     */
+    protected function getSource(): OccurrenceSource
+    {
+        if (empty($this->source)) {
+            $this->source = $this->container->get(OccurrenceSource::class);
+        }
+
+        return $this->source;
     }
 }
