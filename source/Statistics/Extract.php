@@ -28,14 +28,14 @@ class Extract
     }
 
     /**
-     * @param \DateTime          $start
+     * @param \DateTimeInterface $start
      * @param \DateTimeInterface $end
      * @param string             $rangeInput
      * @param array              $eventsInput
      * @return Events
      */
     public function events(
-        \DateTime $start,
+        \DateTimeInterface $start,
         \DateTimeInterface $end,
         string $rangeInput,
         array $eventsInput
@@ -63,15 +63,15 @@ class Extract
         do {
             $row = $events->addRow($iteratedDatetime->format($range->getFormat()));
 
-            $datetime = $this->converter->convert($iteratedDatetime, $rangeInput);
-
-            foreach ($this->source->findByGroupedInterval(
+            $found = $this->source->findByGroupedInterval(
                 $range->getField(),
-                $datetime,
+                $this->converter->convert($iteratedDatetime, $rangeInput),
                 $start,
                 $end,
                 $eventsInput
-            ) as $occurrence) {
+            );
+
+            foreach ($found as $occurrence) {
                 foreach ($occurrence->events as $event) {
                     if (!in_array($event->name, $eventsInput)) {
                         continue;

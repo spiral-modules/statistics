@@ -52,6 +52,18 @@ abstract class BaseTest extends TestCase
      */
     protected $app;
 
+    /** @var Track */
+    protected $track;
+
+    /** @var OccurrenceSource */
+    protected $source;
+
+    /** @var Extract */
+    protected $extract;
+
+    /** @var DatetimeConverter */
+    protected $converter;
+
     public function setUp()
     {
         $root = __DIR__ . '/-app-/';
@@ -146,7 +158,11 @@ abstract class BaseTest extends TestCase
      */
     protected function getTrack(): Track
     {
-        return $this->container->get(Track::class);
+        if (empty($this->track)) {
+            $this->track = $this->container->get(Track::class);
+        }
+
+        return $this->track;
     }
 
     /**
@@ -154,7 +170,11 @@ abstract class BaseTest extends TestCase
      */
     protected function getExtract(): Extract
     {
-        return $this->container->get(Extract::class);
+        if (empty($this->extract)) {
+            $this->extract = $this->container->get(Extract::class);
+        }
+
+        return $this->extract;
     }
 
     /**
@@ -162,7 +182,11 @@ abstract class BaseTest extends TestCase
      */
     protected function getConverter(): DatetimeConverter
     {
-        return $this->container->get(DatetimeConverter::class);
+        if (empty($this->converter)) {
+            $this->converter = $this->container->get(DatetimeConverter::class);
+        }
+
+        return $this->converter;
     }
 
     /**
@@ -170,6 +194,10 @@ abstract class BaseTest extends TestCase
      */
     protected function getSource(): OccurrenceSource
     {
-        return $this->container->get(OccurrenceSource::class);
+        if (empty($this->source)) {
+            $this->source = $this->container->get(OccurrenceSource::class);
+        }
+
+        return $this->source;
     }
 }
