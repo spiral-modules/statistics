@@ -24,7 +24,7 @@ class ChartJSDataset extends AbstractDataset
     }
 
     /**
-     * Convert to real format.
+     * {@inheritdoc}
      */
     protected function convert()
     {
@@ -45,7 +45,6 @@ class ChartJSDataset extends AbstractDataset
             }
         }
     }
-
 
     /**
      * {@inheritdoc}

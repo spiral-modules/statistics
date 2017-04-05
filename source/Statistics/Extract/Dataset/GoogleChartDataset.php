@@ -20,7 +20,7 @@ class GoogleChartDataset extends AbstractDataset
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     protected function convert()
     {
