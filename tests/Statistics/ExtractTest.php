@@ -5,13 +5,13 @@ namespace Spiral\Tests\Statistics;
 use Spiral\Statistics\Database\Event;
 use Spiral\Statistics\Database\Occurrence;
 use Spiral\Statistics\Extract;
-use Spiral\Statistics\Track;
 use Spiral\Tests\BaseTest;
 
 /**
  * For \Spiral\Statistics\Extract::events tests see below:
  *
- * @see Spiral\Tests\Statistics\Extract\Intervals\AbstractInterval::testExtractEvents
+ * @see Spiral\Tests\Statistics\Extract\Intervals\AbstractInterval::testSamePeriodExtractEvents
+ * @see Spiral\Tests\Statistics\Extract\Intervals\AbstractInterval::testAnotherPeriodExtractEvents
  */
 class ExtractTest extends BaseTest
 {

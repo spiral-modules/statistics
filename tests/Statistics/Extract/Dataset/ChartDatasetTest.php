@@ -2,7 +2,7 @@
 
 namespace Spiral\Tests\Statistics\Extract\Dataset;
 
-use Spiral\Statistics\Extract\Dataset\ChartDataset;
+use Spiral\Statistics\Extract\Dataset\ChartJSDataset;
 use Spiral\Statistics\Extract\Events;
 use Spiral\Tests\BaseTest;
 
@@ -10,7 +10,7 @@ class ChartDatasetTest extends BaseTest
 {
     public function testWithoutData()
     {
-        $dataset = new ChartDataset();
+        $dataset = new ChartJSDataset();
         $pack = $dataset->pack();
 
         $this->assertCount(2, $pack);
@@ -19,7 +19,7 @@ class ChartDatasetTest extends BaseTest
 
     public function testSetDataWithoutParams()
     {
-        $dataset = new ChartDataset([]);
+        $dataset = new ChartJSDataset([]);
 
         $events = new Events(['event 1', 'event 2']);
         $row = $events->addRow('event label 1');
@@ -53,7 +53,7 @@ class ChartDatasetTest extends BaseTest
                 'label' => 'event two',
             ],
         ];
-        $dataset = new ChartDataset($params);
+        $dataset = new ChartJSDataset($params);
 
         $events = new Events(['event 1', 'event 2']);
         $row = $events->addRow('event label 1');

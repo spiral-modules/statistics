@@ -5,11 +5,8 @@ namespace Spiral\Tests\Statistics\Extract\Intervals;
 use Spiral\ORM\Entities\RecordSelector;
 use Spiral\Statistics\Database\Event;
 use Spiral\Statistics\Database\Occurrence;
-use Spiral\Statistics\Database\Sources\OccurrenceSource;
-use Spiral\Statistics\DatetimeConverter;
 use Spiral\Statistics\Extract;
 use Spiral\Statistics\Extract\Range;
-use Spiral\Statistics\Track;
 use Spiral\Tests\BaseTest;
 
 abstract class AbstractInterval extends BaseTest

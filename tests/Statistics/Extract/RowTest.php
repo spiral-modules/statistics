@@ -5,7 +5,7 @@ namespace Spiral\Tests\Statistics\Extract;
 use Spiral\Statistics\Extract\Events\Row;
 use Spiral\Tests\BaseTest;
 
-class EventsRowTest extends BaseTest
+class RowTest extends BaseTest
 {
     public function testGetLabel()
     {

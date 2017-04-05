@@ -4,7 +4,7 @@ namespace Spiral\Statistics\Extract\Dataset;
 
 use Spiral\Statistics\Extract\Events;
 
-class ChartDataset extends AbstractDataset
+class ChartJSDataset extends AbstractDataset
 {
     /** @var array */
     private $params = [];

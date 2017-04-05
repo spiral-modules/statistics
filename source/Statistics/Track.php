@@ -28,11 +28,11 @@ class Track
     }
 
     /**
-     * @param string         $name
-     * @param float          $value
-     * @param \DateTime|null $datetime
+     * @param string                  $name
+     * @param float                   $value
+     * @param \DateTimeInterface|null $datetime
      */
-    public function event(string $name, float $value, \DateTime $datetime = null)
+    public function event(string $name, float $value, \DateTimeInterface $datetime = null)
     {
         $occurrence = $this->occurrenceSource->getByTimestamp($this->datetime($datetime));
 
@@ -46,10 +46,10 @@ class Track
     }
 
     /**
-     * @param array          $events Should be formatted ad "event_name" => "event_value"
-     * @param \DateTime|null $datetime
+     * @param array                   $events Should be formatted as "event_name" => "event_value"
+     * @param \DateTimeInterface|null $datetime
      */
-    public function events(array $events, \DateTime $datetime = null)
+    public function events(array $events, \DateTimeInterface $datetime = null)
     {
         if (empty($events)) {
             //nothing to track
@@ -73,10 +73,10 @@ class Track
     }
 
     /**
-     * @param \DateTime|null $datetime
-     * @return \DateTime
+     * @param \DateTimeInterface|null $datetime
+     * @return \DateTimeInterface
      */
-    protected function datetime(\DateTime $datetime = null): \DateTime
+    protected function datetime(\DateTimeInterface $datetime = null): \DateTimeInterface
     {
         return $datetime ?? new \DateTime('now');
     }

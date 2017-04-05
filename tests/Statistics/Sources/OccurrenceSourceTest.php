@@ -3,10 +3,7 @@
 namespace Spiral\Tests\Statistics\Sources;
 
 use Spiral\Statistics\Database\Occurrence;
-use Spiral\Statistics\Database\Sources\OccurrenceSource;
-use Spiral\Statistics\DatetimeConverter;
 use Spiral\Statistics\Extract;
-use Spiral\Statistics\Track;
 use Spiral\Tests\BaseTest;
 
 /**

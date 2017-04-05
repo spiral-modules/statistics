@@ -2,7 +2,6 @@
 
 namespace Spiral\Tests\Statistics;
 
-use Spiral\Statistics\DatetimeConverter;
 use Spiral\Statistics\Extract\Range;
 use Spiral\Tests\BaseTest;
 

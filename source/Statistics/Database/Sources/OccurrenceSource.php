@@ -42,10 +42,10 @@ class OccurrenceSource extends RecordSource
     }
 
     /**
-     * @param \DateTime $datetime
+     * @param \DateTimeInterface $datetime
      * @return Occurrence
      */
-    public function getByTimestamp(\DateTime $datetime): Occurrence
+    public function getByTimestamp(\DateTimeInterface $datetime): Occurrence
     {
         $entity = $this->findByTimestamp($datetime);
         if (empty($entity)) {
