@@ -60,7 +60,7 @@ foreach ($rows as $row) {
 }
 ```
 
-> `$row->getLabel()` is an period label, for month period will be like `'Jan, 2017'`.
+> `$row->getLabel()` is an period label, for month period will be like `'Jan, 2017'`.<br/>
 > `$row->getEvents()` contains all summarized events, for example, for month range:
 
 ```php
@@ -130,7 +130,7 @@ interface DatasetInterface
 }
 ```
 
-This package contains 2 dataset implementations for ([Chart.js](https://chartjs.org) and for ([Google Charts](https://developers.google.com/chart/).
+This package contains 2 dataset implementations for [Chart.js](https://chartjs.org) and for [Google Charts](https://developers.google.com/chart/).
 ```php
 /**
  * @var \Spiral\Statistics\Extract\Events $events
@@ -144,6 +144,5 @@ $dataset = new \Spiral\Statistics\Extract\Dataset\ChartJsDataset([
    ],
 ]);
 $dataset->setData($events);
-$dataset = $events->prepare();
 print_r($dataset->pack());
 ```
