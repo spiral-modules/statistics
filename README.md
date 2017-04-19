@@ -44,8 +44,8 @@ $track->events([
  */
 $events = $extract->events($startDatetime, $endDatetime, $range, ['eventName1', 'eventName2']);
 ```
-> `$startDatetime` and `$endDatetime` will be swapped if `$endDatetime` is less than `$startDatetime`.
-> `$range` is an grouping level, you can use one of supported ones: "day", "week", "month", "year", just use `\Spiral\Statistics\Extract\Range` constants.
+> `$startDatetime` and `$endDatetime` will be swapped if `$endDatetime` is less than `$startDatetime`. <br/>
+> `$range` is a grouping level, you can use one of supported ones: "day", "week", "month", "year", just use `\Spiral\Statistics\Extract\Range` constants.
 
 As a result, you will receive an array of ` \Spiral\Statistics\Extract\Events\Row` objects, one row represents one range period.
 ```php
