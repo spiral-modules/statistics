@@ -31,7 +31,15 @@ class Extract
         $this->converter = $converter;
     }
 
-
+    /**
+     * Extract listed events inside given timeframe.
+     *
+     * @param \DateTimeInterface $start
+     * @param \DateTimeInterface $end
+     * @param RangeInterface     $range
+     * @param array              $eventsInput
+     * @return Events
+     */
     public function events(
         \DateTimeInterface $start,
         \DateTimeInterface $end,
