@@ -2,100 +2,92 @@
 
 namespace Spiral\Tests\Statistics\Extract\Intervals;
 
-use Spiral\ORM\Entities\RecordSelector;
-use Spiral\Statistics\Database\Event;
-use Spiral\Statistics\Database\Occurrence;
+use Spiral\Statistics\Database\Statistics;
 use Spiral\Statistics\Extract;
 use Spiral\Statistics\Extract\Range;
 use Spiral\Tests\BaseTest;
 
 abstract class AbstractInterval extends BaseTest
 {
-    const RANGE          = null;
-    const RANGE_FIELD    = null;
     const RANGE_INTERVAL = null;
     const RANGE_FORMAT   = null;
 
+    const START = null; //extract start date
+    const END   = null; //extract end date
+
+    const DT1 = null; //track first datetime
+    const DT2 = null; //track second datetime in same interval
+    const DT3 = null; //track second datetime in another interval
+
     public function testRange()
     {
-        $range = new Range(static::RANGE);
-        $this->assertEquals(static::RANGE_FIELD, $range->getField());
+        $range = $this->range();
         $this->assertEquals(new \DateInterval(static::RANGE_INTERVAL), $range->getInterval());
         $this->assertEquals(static::RANGE_FORMAT, $range->getFormat());
     }
 
-    abstract protected function start(): \DateTime;
-
-    abstract protected function end(): \DateTime;
-
-    abstract protected function datetime1(): \DateTime;
-
-    abstract protected function datetime2(): \DateTime;
-
-    abstract protected function datetime3(): \DateTime;
-
     /**
      * Method shortcut.
      *
-     * @param string             $periodField
      * @param \DateTimeInterface $periodValue
      * @param \DateTimeInterface $start
      * @param \DateTimeInterface $end
      * @param array              $events
-     * @return RecordSelector
+     * @return array
      */
     protected function find(
-        string $periodField,
         \DateTimeInterface $periodValue,
         \DateTimeInterface $start,
         \DateTimeInterface $end,
         array $events = []
-    ): RecordSelector
+    ): array
     {
-        return $this->getSource()->findByGroupedInterval(
-            $periodField,
-            $periodValue,
-            $start,
-            $end,
-            $events
-        );
+        $result = [];
+        /** @var Statistics $row */
+        foreach ($this->getSource()->findExtract($start, $end, $events) as $row) {
+            $converted = $this->getConverter()->convert($row->timestamp, $this->range());
+            if ($converted->getTimestamp() == $periodValue->getTimestamp()) {
+                $result[] = $row;
+            }
+        }
+
+        return $result;
     }
 
-    public function testSamePeriodOccurrenceSourceFindByGroupedInterval()
+    public function testSamePeriodSourceFindExtract()
     {
         $converter = $this->getConverter();
         $track = $this->getTrack();
 
-        $this->assertCount(0, $this->orm->source(Occurrence::class));
-        $this->assertCount(0, $this->orm->source(Event::class));
+        $this->assertCount(0, $this->orm->source(Statistics::class));
 
         $start = $this->start();
         $end = $this->end();
 
         $datetime1 = $this->datetime1();
         $datetime2 = $this->datetime2();
-        $period = $converter->convert($datetime1, static::RANGE);
+        $period = $converter->convert($datetime1, $this->range());
 
-        $this->assertCount(0, $this->orm->source(Occurrence::class));
-        $this->assertCount(0, $this->orm->source(Event::class));
-        $this->assertCount(0, $this->find(static::RANGE_FIELD, $period, $start, $end));
+        $this->assertCount(0, $this->orm->source(Statistics::class));
+        $this->assertCount(0, $this->find($period, $start, $end));
 
         $track->events(['event 1' => 1, 'event 2' => 2, 'event 3' => 3], $datetime1);
         $track->events(['event 3' => 3, 'event 4' => 4], $datetime2);
 
-        $this->assertCount(2, $this->orm->source(Occurrence::class));
-        $this->assertCount(5, $this->orm->source(Event::class));
+        $this->assertCount(5, $this->orm->source(Statistics::class));
 
-        //Check if passed events make difference
-        $this->sourceTest($period, $start, $end, [
-            [2, []],
-            [1, ['event 1']],
-            [1, ['event 1', 'event 2']],
-            [2, ['event 1', 'event 3']],
-            [2, ['event 1', 'event 2', 'event 3', 'event 4']],
-            [1, ['event 4']],
-            [0, ['event 5']],
-        ]);
+        /*
+         * Check if passed events make difference
+         * Start-end cover all occurrences
+         */
+        $this->assertCount(5, $this->find($period, $start, $end, []));
+        $this->assertCount(1, $this->find($period, $start, $end, ['event 1']));
+        $this->assertCount(2, $this->find($period, $start, $end, ['event 1', 'event 2']));
+        $this->assertCount(3, $this->find($period, $start, $end, ['event 1', 'event 3']));
+        $this->assertCount(5,
+            $this->find($period, $start, $end, ['event 1', 'event 2', 'event 3', 'event 4']));
+        $this->assertCount(1, $this->find($period, $start, $end, ['event 4']));
+        $this->assertCount(0, $this->find($period, $start, $end, ['event 5']));
 
         //Check if passed time and events make difference
         $start1 = clone $datetime1;
@@ -104,74 +96,83 @@ abstract class AbstractInterval extends BaseTest
         $end1 = clone $datetime1;
         $end1->setTime(13, 0, 0);
 
-        $this->sourceTest($period, $start1, $end, [
-            [1, []],
-            [0, ['event 1']],
-            [0, ['event 1', 'event 2']],
-            [1, ['event 1', 'event 3']],
-            [1, ['event 1', 'event 2', 'event 3', 'event 4']],
-            [1, ['event 4']],
-            [0, ['event 5']],
-        ]);
+        /*
+         * Check if passed start time and events make difference
+         * Start-end cover second occurrences
+         */
+        $this->assertCount(2, $this->find($period, $start1, $end, []));
+        $this->assertCount(0, $this->find($period, $start1, $end, ['event 1']));
+        $this->assertCount(0, $this->find($period, $start1, $end, ['event 1', 'event 2']));
+        $this->assertCount(1, $this->find($period, $start1, $end, ['event 1', 'event 3']));
+        $this->assertCount(2,
+            $this->find($period, $start1, $end, ['event 1', 'event 2', 'event 3', 'event 4']));
+        $this->assertCount(1, $this->find($period, $start1, $end, ['event 4']));
+        $this->assertCount(0, $this->find($period, $start1, $end, ['event 5']));
 
-        //Check if passed end time and events make difference
-        $this->sourceTest($period, $start, $end1, [
-            [1, []],
-            [1, ['event 1']],
-            [1, ['event 1', 'event 2']],
-            [1, ['event 1', 'event 3']],
-            [1, ['event 1', 'event 2', 'event 3', 'event 4']],
-            [0, ['event 4']],
-            [0, ['event 5']],
-        ]);
+        /*
+         * Check if passed end time and events make difference
+         * Start-end cover first occurrences
+         */
+        $this->assertCount(3, $this->find($period, $start, $end1, []));
+        $this->assertCount(1, $this->find($period, $start, $end1, ['event 1']));
+        $this->assertCount(2, $this->find($period, $start, $end1, ['event 1', 'event 2']));
+        $this->assertCount(2, $this->find($period, $start, $end1, ['event 1', 'event 3']));
+        $this->assertCount(3,
+            $this->find($period, $start, $end1, ['event 1', 'event 2', 'event 3', 'event 4']));
+        $this->assertCount(0, $this->find($period, $start, $end1, ['event 4']));
+        $this->assertCount(0, $this->find($period, $start, $end1, ['event 5']));
     }
 
-    public function testAnotherPeriodOccurrenceSourceFindByGroupedInterval()
+    public function testAnotherPeriodSourceFindExtract()
     {
         $converter = $this->getConverter();
         $track = $this->getTrack();
 
-        $this->assertCount(0, $this->orm->source(Occurrence::class));
-        $this->assertCount(0, $this->orm->source(Event::class));
+        $this->assertCount(0, $this->orm->source(Statistics::class));
 
         $start = $this->start();
         $end = $this->end();
 
         $datetime1 = $this->datetime1();
         $datetime2 = $this->datetime3();
-        $period1 = $converter->convert($datetime1, static::RANGE);
-        $period2 = $converter->convert($datetime2, static::RANGE);
+        $period1 = $converter->convert($datetime1, $this->range());
+        $period2 = $converter->convert($datetime2, $this->range());
 
-        $this->assertCount(0, $this->orm->source(Occurrence::class));
-        $this->assertCount(0, $this->orm->source(Event::class));
-        $this->assertCount(0, $this->find(static::RANGE_FIELD, $period1, $start, $end));
-        $this->assertCount(0, $this->find(static::RANGE_FIELD, $period2, $start, $end));
+        $this->assertCount(0, $this->orm->source(Statistics::class));
+        $this->assertCount(0, $this->find($period1, $start, $end));
+        $this->assertCount(0, $this->find($period2, $start, $end));
 
         $track->events(['event 1' => 1, 'event 2' => 2, 'event 3' => 3], $datetime1);
         $track->events(['event 3' => 3, 'event 4' => 4], $datetime2);
 
-        $this->assertCount(2, $this->orm->source(Occurrence::class));
-        $this->assertCount(5, $this->orm->source(Event::class));
+        $this->assertCount(5, $this->orm->source(Statistics::class));
 
-        //Check if passed events make difference
-        $this->sourceTest($period1, $start, $end, [
-            [1, []],
-            [1, ['event 1']],
-            [1, ['event 1', 'event 2']],
-            [1, ['event 1', 'event 3']],
-            [1, ['event 1', 'event 2', 'event 3', 'event 4']],
-            [0, ['event 4']],
-            [0, ['event 5']],
-        ]);
-        $this->sourceTest($period2, $start, $end, [
-            [1, []],
-            [0, ['event 1']],
-            [0, ['event 1', 'event 2']],
-            [1, ['event 1', 'event 3']],
-            [1, ['event 1', 'event 2', 'event 3', 'event 4']],
-            [1, ['event 4']],
-            [0, ['event 5']],
-        ]);
+        /*
+         * Check if passed events make difference
+         * Start-end cover all occurrences
+         *
+         * Only first occurrences
+         */
+        $this->assertCount(3, $this->find($period1, $start, $end, []));
+        $this->assertCount(1, $this->find($period1, $start, $end, ['event 1']));
+        $this->assertCount(2, $this->find($period1, $start, $end, ['event 1', 'event 2']));
+        $this->assertCount(2, $this->find($period1, $start, $end, ['event 1', 'event 3']));
+        $this->assertCount(3,
+            $this->find($period1, $start, $end, ['event 1', 'event 2', 'event 3', 'event 4']));
+        $this->assertCount(0, $this->find($period1, $start, $end, ['event 4']));
+        $this->assertCount(0, $this->find($period1, $start, $end, ['event 5']));
+
+        /*
+         * Only second occurrences
+         */
+        $this->assertCount(2, $this->find($period2, $start, $end, []));
+        $this->assertCount(0, $this->find($period2, $start, $end, ['event 1']));
+        $this->assertCount(0, $this->find($period2, $start, $end, ['event 1', 'event 2']));
+        $this->assertCount(1, $this->find($period2, $start, $end, ['event 1', 'event 3']));
+        $this->assertCount(2,
+            $this->find($period2, $start, $end, ['event 1', 'event 2', 'event 3', 'event 4']));
+        $this->assertCount(1, $this->find($period2, $start, $end, ['event 4']));
+        $this->assertCount(0, $this->find($period2, $start, $end, ['event 5']));
 
         //Check if passed start time and events make difference
         $start1 = clone $datetime1;
@@ -180,57 +181,49 @@ abstract class AbstractInterval extends BaseTest
         $end1 = clone $datetime1;
         $end1->setTime(13, 0, 0);
 
-        $this->sourceTest($period1, $start1, $end, [
-            [0, []],
-            [0, ['event 1']],
-            [0, ['event 1', 'event 2']],
-            [0, ['event 1', 'event 3']],
-            [0, ['event 1', 'event 2', 'event 3', 'event 4']],
-            [0, ['event 4']],
-            [0, ['event 5']],
-        ]);
-        $this->sourceTest($period2, $start1, $end, [
-            [1, []],
-            [0, ['event 1']],
-            [0, ['event 1', 'event 2']],
-            [1, ['event 1', 'event 3']],
-            [1, ['event 1', 'event 2', 'event 3', 'event 4']],
-            [1, ['event 4']],
-            [0, ['event 5']],
-        ]);
+        /*
+         * Check if passed start time and events and period make difference
+         * Start-end cover second occurrences
+         */
+        $this->assertCount(0, $this->find($period1, $start1, $end, []));
+        $this->assertCount(0, $this->find($period1, $start1, $end, ['event 1']));
+        $this->assertCount(0, $this->find($period1, $start1, $end, ['event 1', 'event 2']));
+        $this->assertCount(0, $this->find($period1, $start1, $end, ['event 1', 'event 3']));
+        $this->assertCount(0,
+            $this->find($period1, $start1, $end, ['event 1', 'event 2', 'event 3', 'event 4']));
+        $this->assertCount(0, $this->find($period1, $start1, $end, ['event 4']));
+        $this->assertCount(0, $this->find($period1, $start1, $end, ['event 5']));
 
-        //Check if passed end time and events make difference
-        $this->sourceTest($period1, $start, $end1, [
-            [1, []],
-            [1, ['event 1']],
-            [1, ['event 1', 'event 2']],
-            [1, ['event 1', 'event 3']],
-            [1, ['event 1', 'event 2', 'event 3', 'event 4']],
-            [0, ['event 4']],
-            [0, ['event 5']],
-        ]);
-        $this->sourceTest($period2, $start, $end1, [
-            [0, []],
-            [0, ['event 1']],
-            [0, ['event 1', 'event 2']],
-            [0, ['event 1', 'event 3']],
-            [0, ['event 1', 'event 2', 'event 3', 'event 4']],
-            [0, ['event 4']],
-            [0, ['event 5']],
-        ]);
-    }
+        $this->assertCount(2, $this->find($period2, $start1, $end, []));
+        $this->assertCount(0, $this->find($period2, $start1, $end, ['event 1']));
+        $this->assertCount(0, $this->find($period2, $start1, $end, ['event 1', 'event 2']));
+        $this->assertCount(1, $this->find($period2, $start1, $end, ['event 1', 'event 3']));
+        $this->assertCount(2,
+            $this->find($period2, $start1, $end, ['event 1', 'event 2', 'event 3', 'event 4']));
+        $this->assertCount(1, $this->find($period2, $start1, $end, ['event 4']));
+        $this->assertCount(0, $this->find($period2, $start1, $end, ['event 5']));
 
-    protected function sourceTest(
-        \DateTimeInterface $period,
-        \DateTimeInterface $start,
-        \DateTimeInterface $end,
-        array $data
-    ) {
-        $field = static::RANGE_FIELD;
+        /*
+         * Check if passed end time and events make difference
+         * Start-end cover first occurrences
+         */
+        $this->assertCount(3, $this->find($period1, $start, $end1, []));
+        $this->assertCount(1, $this->find($period1, $start, $end1, ['event 1']));
+        $this->assertCount(2, $this->find($period1, $start, $end1, ['event 1', 'event 2']));
+        $this->assertCount(2, $this->find($period1, $start, $end1, ['event 1', 'event 3']));
+        $this->assertCount(3,
+            $this->find($period1, $start, $end1, ['event 1', 'event 2', 'event 3', 'event 4']));
+        $this->assertCount(0, $this->find($period1, $start, $end1, ['event 4']));
+        $this->assertCount(0, $this->find($period1, $start, $end1, ['event 5']));
 
-        foreach ($data as $arr) {
-            $this->assertCount($arr[0], $this->find($field, $period, $start, $end, $arr[1]));
-        }
+        $this->assertCount(0, $this->find($period2, $start, $end1, []));
+        $this->assertCount(0, $this->find($period2, $start, $end1, ['event 1']));
+        $this->assertCount(0, $this->find($period2, $start, $end1, ['event 1', 'event 2']));
+        $this->assertCount(0, $this->find($period2, $start, $end1, ['event 1', 'event 3']));
+        $this->assertCount(0,
+            $this->find($period2, $start, $end1, ['event 1', 'event 2', 'event 3', 'event 4']));
+        $this->assertCount(0, $this->find($period2, $start, $end1, ['event 4']));
+        $this->assertCount(0, $this->find($period2, $start, $end1, ['event 5']));
     }
 
     public function testSamePeriodExtractEvents()
@@ -238,34 +231,22 @@ abstract class AbstractInterval extends BaseTest
         $converter = $this->getConverter();
         $track = $this->getTrack();
 
-        $this->assertCount(0, $this->orm->source(Occurrence::class));
-        $this->assertCount(0, $this->orm->source(Event::class));
+        $this->assertCount(0, $this->orm->source(Statistics::class));
 
         $start = $this->start();
         $end = $this->end();
 
         $datetime1 = $this->datetime1();
         $datetime2 = $this->datetime2();
-        $period = $converter->convert($datetime1, static::RANGE);
+        $period = $converter->convert($datetime1, $this->range());
 
-        $this->assertCount(0, $this->orm->source(Occurrence::class));
-        $this->assertCount(0, $this->orm->source(Event::class));
-        $this->assertCount(0, $this->find(static::RANGE_FIELD, $period, $start, $end));
+        $this->assertCount(0, $this->orm->source(Statistics::class));
+        $this->assertCount(0, $this->find($period, $start, $end));
 
         $track->events(['event 1' => 1, 'event 2' => 2, 'event 3' => 3], $datetime1);
-        $track->events(['event 3' => 3, 'event 4' => 4], $datetime2);
+        $track->events(['event 3' => 4, 'event 4' => 4], $datetime2);
 
-        $this->assertCount(2, $this->orm->source(Occurrence::class));
-        $this->assertCount(5, $this->orm->source(Event::class));
-
-        $this->extractTest($period, $start, $end, [
-            ['event 1' => 1],
-            ['event 1' => 1, 'event 2' => 2],
-            ['event 1' => 1, 'event 3' => 6],
-            ['event 1' => 1, 'event 2' => 2, 'event 3' => 6, 'event 4' => 4],
-            ['event 4' => 4],
-            ['event 5' => 0],
-        ]);
+        $this->assertCount(5, $this->orm->source(Statistics::class));
 
         //Check if passed time and events make difference
         $start1 = clone $datetime1;
@@ -274,23 +255,14 @@ abstract class AbstractInterval extends BaseTest
         $end1 = clone $datetime1;
         $end1->setTime(13, 0, 0);
 
-        $this->extractTest($period, $start1, $end, [
-            ['event 1' => 0],
-            ['event 1' => 0, 'event 2' => 0],
-            ['event 1' => 0, 'event 3' => 3],
-            ['event 1' => 0, 'event 2' => 0, 'event 3' => 3, 'event 4' => 4],
-            ['event 4' => 4],
-            ['event 5' => 0],
-        ]);
+        $this->extractTest($period, $start, $end,
+            ['event 1' => 1, 'event 2' => 2, 'event 3' => 7, 'event 4' => 4, 'event 5' => 0]);
 
-        $this->extractTest($period, $start, $end1, [
-            ['event 1' => 1],
-            ['event 1' => 1, 'event 2' => 2],
-            ['event 1' => 1, 'event 3' => 3],
-            ['event 1' => 1, 'event 2' => 2, 'event 3' => 3, 'event 4' => 0],
-            ['event 4' => 0],
-            ['event 5' => 0],
-        ]);
+        $this->extractTest($period, $start1, $end,
+            ['event 1' => 0, 'event 2' => 0, 'event 3' => 4, 'event 4' => 4, 'event 5' => 0]);
+
+        $this->extractTest($period, $start, $end1,
+            ['event 1' => 1, 'event 2' => 2, 'event 3' => 3, 'event 4' => 0, 'event 5' => 0]);
     }
 
     public function testAnotherPeriodExtractEvents()
@@ -298,44 +270,24 @@ abstract class AbstractInterval extends BaseTest
         $converter = $this->getConverter();
         $track = $this->getTrack();
 
-        $this->assertCount(0, $this->orm->source(Occurrence::class));
-        $this->assertCount(0, $this->orm->source(Event::class));
+        $this->assertCount(0, $this->orm->source(Statistics::class));
 
         $start = $this->start();
         $end = $this->end();
 
         $datetime1 = $this->datetime1();
         $datetime2 = $this->datetime3();
-        $period1 = $converter->convert($datetime1, static::RANGE);
-        $period2 = $converter->convert($datetime2, static::RANGE);
+        $period1 = $converter->convert($datetime1, $this->range());
+        $period2 = $converter->convert($datetime2, $this->range());
 
-        $this->assertCount(0, $this->orm->source(Occurrence::class));
-        $this->assertCount(0, $this->orm->source(Event::class));
-        $this->assertCount(0, $this->find(static::RANGE_FIELD, $period1, $start, $end));
-        $this->assertCount(0, $this->find(static::RANGE_FIELD, $period2, $start, $end));
+        $this->assertCount(0, $this->orm->source(Statistics::class));
+        $this->assertCount(0, $this->find($period1, $start, $end));
+        $this->assertCount(0, $this->find($period2, $start, $end));
 
         $track->events(['event 1' => 1, 'event 2' => 2, 'event 3' => 3], $datetime1);
-        $track->events(['event 3' => 3, 'event 4' => 4], $datetime2);
+        $track->events(['event 3' => 4, 'event 4' => 4], $datetime2);
 
-        $this->assertCount(2, $this->orm->source(Occurrence::class));
-        $this->assertCount(5, $this->orm->source(Event::class));
-
-        $this->extractTest($period1, $start, $end, [
-            ['event 1' => 1],
-            ['event 1' => 1, 'event 2' => 2],
-            ['event 1' => 1, 'event 3' => 3],
-            ['event 1' => 1, 'event 2' => 2, 'event 3' => 3, 'event 4' => 0],
-            ['event 4' => 0],
-            ['event 5' => 0],
-        ]);
-        $this->extractTest($period2, $start, $end, [
-            ['event 1' => 0],
-            ['event 1' => 0, 'event 2' => 0],
-            ['event 1' => 0, 'event 3' => 3],
-            ['event 1' => 0, 'event 2' => 0, 'event 3' => 3, 'event 4' => 4],
-            ['event 4' => 4],
-            ['event 5' => 0],
-        ]);
+        $this->assertCount(5, $this->orm->source(Statistics::class));
 
         //Check if passed time and events make difference
         $start1 = clone $datetime1;
@@ -344,64 +296,46 @@ abstract class AbstractInterval extends BaseTest
         $end1 = clone $datetime1;
         $end1->setTime(13, 0, 0);
 
-        $this->extractTest($period1, $start1, $end, [
-            ['event 1' => 0],
-            ['event 1' => 0, 'event 2' => 0],
-            ['event 1' => 0, 'event 3' => 0],
-            ['event 1' => 0, 'event 2' => 0, 'event 3' => 0, 'event 4' => 0],
-            ['event 4' => 0],
-            ['event 5' => 0],
-        ]);
-        $this->extractTest($period2, $start1, $end, [
-            ['event 1' => 0],
-            ['event 1' => 0, 'event 2' => 0],
-            ['event 1' => 0, 'event 3' => 3],
-            ['event 1' => 0, 'event 2' => 0, 'event 3' => 3, 'event 4' => 4],
-            ['event 4' => 4],
-            ['event 5' => 0],
-        ]);
+        $this->extractTest($period1, $start, $end,
+            ['event 1' => 1, 'event 2' => 2, 'event 3' => 3, 'event 4' => 0, 'event 5' => 0]);
 
-        $this->extractTest($period1, $start, $end1, [
-            ['event 1' => 1],
-            ['event 1' => 1, 'event 2' => 2],
-            ['event 1' => 1, 'event 3' => 3],
-            ['event 1' => 1, 'event 2' => 2, 'event 3' => 3, 'event 4' => 0],
-            ['event 4' => 0],
-            ['event 5' => 0],
-        ]);
-        $this->extractTest($period2, $start, $end1, [
-            ['event 1' => 0],
-            ['event 1' => 0, 'event 2' => 0],
-            ['event 1' => 0, 'event 3' => 0],
-            ['event 1' => 0, 'event 2' => 0, 'event 3' => 0, 'event 4' => 0],
-            ['event 4' => 0],
-            ['event 5' => 0],
-        ]);
+        $this->extractTest($period1, $start1, $end,
+            ['event 1' => 0, 'event 2' => 0, 'event 3' => 0, 'event 4' => 0, 'event 5' => 0]);
+
+        $this->extractTest($period1, $start, $end1,
+            ['event 1' => 1, 'event 2' => 2, 'event 3' => 3, 'event 4' => 0, 'event 5' => 0]);
+
+        $this->extractTest($period2, $start, $end,
+            ['event 1' => 0, 'event 2' => 0, 'event 3' => 4, 'event 4' => 4, 'event 5' => 0]);
+
+        $this->extractTest($period2, $start1, $end,
+            ['event 1' => 0, 'event 2' => 0, 'event 3' => 4, 'event 4' => 4, 'event 5' => 0]);
+
+        $this->extractTest($period2, $start, $end1,
+            ['event 1' => 0, 'event 2' => 0, 'event 3' => 0, 'event 4' => 0, 'event 5' => 0]);
     }
 
     protected function extractTest(
         \DateTimeInterface $period,
         \DateTimeInterface $start,
         \DateTimeInterface $end,
-
-        array $data
+        array $arr
     ) {
         $extract = $this->getExtract();
         $count = $this->calculateRows($start, $end);
 
-        foreach ($data as $arr) {
-            $events = $extract->events($start, $end, static::RANGE, array_keys($arr));
+        $events = $extract->events($start, $end, $this->range(), array_keys($arr));
 
-            $rows = $events->getRows();
-            //Same count of rows as expected due to grouping
-            $this->assertCount($count, $rows);
+        $rows = $events->getRows();
 
-            /** @var Extract\Events\Row $row */
-            foreach ($rows as $label => $row) {
-                //Same events with same values in result rows
-                if ($period->format(static::RANGE_FORMAT) == $row->getLabel()) {
-                    $this->assertEquals($arr, $row->getEvents());
-                }
+        //Same count of rows as expected due to grouping
+        $this->assertCount($count, $rows);
+
+        /** @var Extract\Events\Row $row */
+        foreach ($rows as $label => $row) {
+            //Same events with same values in result rows
+            if ($period->format(static::RANGE_FORMAT) == $row->getLabel()) {
+                $this->assertEquals($arr, $row->getEvents());
             }
         }
     }
@@ -413,11 +347,41 @@ abstract class AbstractInterval extends BaseTest
         $end = $converter->immutable($end);
 
         $count = 0;
-        while ($start <= $end) {
+        while (
+            $this->getConverter()->convert($start, $this->range()) <=
+            $this->getConverter()->convert($end, $this->range())
+        ) {
             $count++;
             $start = $start->add(new \DateInterval(static::RANGE_INTERVAL));
         }
 
         return $count;
+    }
+
+    abstract protected function range(): Extract\RangeInterface;
+
+    protected function start(): \DateTime
+    {
+        return new \DateTime(static::START);
+    }
+
+    protected function end(): \DateTime
+    {
+        return new \DateTime(static::END);
+    }
+
+    protected function datetime1(): \DateTime
+    {
+        return new \DateTime(static::DT1);
+    }
+
+    protected function datetime2(): \DateTime
+    {
+        return new \DateTime(static::DT2);
+    }
+
+    protected function datetime3(): \DateTime
+    {
+        return new \DateTime(static::DT3);
     }
 }

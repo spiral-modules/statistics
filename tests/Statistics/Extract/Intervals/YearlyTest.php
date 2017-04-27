@@ -6,33 +6,18 @@ use Spiral\Statistics\Extract;
 
 class YearlyTest extends AbstractInterval
 {
-    const RANGE          = Extract\Range::YEARLY;
-    const RANGE_FIELD    = 'year_mark';
     const RANGE_INTERVAL = 'P1Y';
     const RANGE_FORMAT   = 'Y';
 
-    protected function start(): \DateTime
-    {
-        return new \DateTime('today noon - 370 days');
-    }
+    const START = 'today noon - 370 days';
+    const END = 'today noon + 370 days';
 
-    protected function end(): \DateTime
-    {
-        return new \DateTime('today noon + 370 days');
-    }
+    const DT1 = 'today noon';
+    const DT2 = 'today noon + 2 hours';
+    const DT3 = 'today noon + 367 days + 2 hours';
 
-    protected function datetime1(): \DateTime
+    protected function range(): Extract\RangeInterface
     {
-        return new \DateTime('today noon');
-    }
-
-    protected function datetime2(): \DateTime
-    {
-        return new \DateTime('today noon + 2 hours');
-    }
-
-    protected function datetime3(): \DateTime
-    {
-        return new \DateTime('today noon + 367 days + 2 hours');
+        return new Extract\Range\YearlyRange();
     }
 }

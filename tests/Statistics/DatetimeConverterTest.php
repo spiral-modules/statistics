@@ -2,8 +2,12 @@
 
 namespace Spiral\Tests\Statistics;
 
-use Spiral\Statistics\Extract\Range;
+use Spiral\Statistics\Extract\Range\DailyRange;
+use Spiral\Statistics\Extract\Range\MonthlyRange;
+use Spiral\Statistics\Extract\Range\WeeklyRange;
+use Spiral\Statistics\Extract\Range\YearlyRange;
 use Spiral\Tests\BaseTest;
+use Spiral\Tests\Statistics\Entities\UnknownRange;
 
 class DatetimeConverterTest extends BaseTest
 {
@@ -29,11 +33,11 @@ class DatetimeConverterTest extends BaseTest
         $converter = $this->getConverter();
 
         $datetime1 = new \DateTime();
-        $datetime2 = $converter->convert($datetime1, Range::DAILY);
-        $datetime3 = $converter->convert($datetime1, Range::WEEKLY);
-        $datetime4 = $converter->convert($datetime1, Range::MONTHLY);
-        $datetime5 = $converter->convert($datetime1, Range::YEARLY);
-        $datetime6 = $converter->convert($datetime1, 'some-unsupported-range');
+        $datetime2 = $converter->convert($datetime1, new DailyRange());
+        $datetime3 = $converter->convert($datetime1, new WeeklyRange());
+        $datetime4 = $converter->convert($datetime1, new MonthlyRange());
+        $datetime5 = $converter->convert($datetime1, new YearlyRange());
+        $datetime6 = $converter->convert($datetime1, new UnknownRange());
 
         //Any other will be immutable also
         $this->assertInstanceOf(\DateTimeImmutable::class, $datetime6);
@@ -71,28 +75,24 @@ class DatetimeConverterTest extends BaseTest
         $weekDay = $immutable->format('w') ? $immutable->format('w') - 1 : 6;
 
         $this->assertEquals(
+            $immutable->setTime(0, 0, 0)->getTimestamp(),
+            $converter->convert($datetime, new DailyRange())->getTimestamp()
+        );
+        $this->assertEquals(
+            $immutable->sub(new \DateInterval('P' . $weekDay . 'D'))->setTime(0, 0, 0)->getTimestamp(),
+            $converter->convert($datetime, new WeeklyRange())->getTimestamp()
+        );
+        $this->assertEquals(
+            $immutable->setDate($formatYear, $formatMonth, 1)->setTime(0, 0, 0)->getTimestamp(),
+            $converter->convert($datetime, new MonthlyRange())->getTimestamp()
+        );
+        $this->assertEquals(
+            $immutable->setDate($formatYear, 1, 1)->setTime(0, 0, 0)->getTimestamp(),
+            $converter->convert($datetime, new YearlyRange())->getTimestamp()
+        );
+        $this->assertEquals(
             $immutable->getTimestamp(),
-            $converter->convert($datetime)->getTimestamp()
-        );
-        $this->assertEquals(
-            $immutable->setTime(0, 0, 0),
-            $converter->convert($datetime, Range::DAILY)
-        );
-        $this->assertEquals(
-            $immutable->sub(new \DateInterval('P' . $weekDay . 'D'))->setTime(0, 0, 0),
-            $converter->convert($datetime, Range::WEEKLY)
-        );
-        $this->assertEquals(
-            $immutable->setDate($formatYear, $formatMonth, 1)->setTime(0, 0, 0),
-            $converter->convert($datetime, Range::MONTHLY)
-        );
-        $this->assertEquals(
-            $immutable->setDate($formatYear, 1, 1)->setTime(0, 0, 0),
-            $converter->convert($datetime, Range::YEARLY)
-        );
-        $this->assertEquals(
-            $immutable,
-            $converter->convert($datetime, 'some-unsupported-range')
+            $converter->convert($datetime, new UnknownRange())->getTimestamp()
         );
     }
 }

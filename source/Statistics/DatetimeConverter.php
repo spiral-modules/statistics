@@ -2,37 +2,39 @@
 
 namespace Spiral\Statistics;
 
+use Spiral\Statistics\Extract\RangeInterface;
+
 class DatetimeConverter
 {
     /**
-     * @param \DateTimeInterface $datetime
-     * @param string|null        $interval
+     * @param \DateTimeInterface  $datetime
+     * @param RangeInterface $range
      * @return \DateTimeImmutable
      */
     public function convert(
         \DateTimeInterface $datetime,
-        string $interval = null
+        RangeInterface $range
     ): \DateTimeImmutable
     {
         $datetime = $this->immutable($datetime);
 
-        switch ($interval) {
-            case 'day':
+        switch ($range->getRange()) {
+            case 'daily':
                 return $datetime->setTime(0, 0, 0);
 
-            case 'week':
+            case 'weekly':
                 $weekSub = $datetime->format('w') ? $datetime->format('w') - 1 : 6;
 
                 return $datetime
                     ->sub(new \DateInterval('P' . $weekSub . 'D'))
                     ->setTime(0, 0, 0);
 
-            case 'month':
+            case 'monthly':
                 return $datetime
                     ->setDate($datetime->format('Y'), $datetime->format('m'), 1)
                     ->setTime(0, 0, 0);
 
-            case 'year':
+            case 'yearly':
                 return $datetime
                     ->setDate($datetime->format('Y'), 1, 1)
                     ->setTime(0, 0, 0);

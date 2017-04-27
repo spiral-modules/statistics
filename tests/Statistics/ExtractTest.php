@@ -2,10 +2,10 @@
 
 namespace Spiral\Tests\Statistics;
 
-use Spiral\Statistics\Database\Event;
-use Spiral\Statistics\Database\Occurrence;
+use Spiral\Statistics\Database\Statistics;
 use Spiral\Statistics\Extract;
 use Spiral\Tests\BaseTest;
+use Spiral\Tests\Statistics\Entities\UnknownRange;
 
 /**
  * For \Spiral\Statistics\Extract::events tests see below:
@@ -21,7 +21,7 @@ class ExtractTest extends BaseTest
     public function testEmptyEvents()
     {
         $extract = $this->getExtract();
-        $extract->events(new \DateTime(), new \DateTime(), 'range', []);
+        $extract->events(new \DateTime(), new \DateTime(), new UnknownRange(), []);
     }
 
     public function testEvents()
@@ -30,7 +30,7 @@ class ExtractTest extends BaseTest
         $events = $extract->events(
             new \DateTime(),
             new \DateTime(),
-            Extract\Range::DAILY, ['event']
+            new Extract\Range\DailyRange(), ['event']
         );
 
         $this->assertInstanceOf(Extract\Events::class, $events);
@@ -41,8 +41,7 @@ class ExtractTest extends BaseTest
         $extract = $this->getExtract();
         $track = $this->getTrack();
 
-        $this->assertCount(0, $this->orm->source(Occurrence::class));
-        $this->assertCount(0, $this->orm->source(Event::class));
+        $this->assertCount(0, $this->orm->source(Statistics::class));
 
         $datetime1 = new \DateTime('now');
         $datetime2 = new \DateTime('tomorrow');
@@ -51,15 +50,41 @@ class ExtractTest extends BaseTest
         $track->event('event2', 1, $datetime1);
         $track->event('event2', 2, $datetime2);
 
-        $this->assertCount(2, $this->orm->source(Occurrence::class));
-        $this->assertCount(3, $this->orm->source(Event::class));
+        $this->assertCount(3, $this->orm->source(Statistics::class));
 
         $start = new \DateTime('-2 days');
         $end = new \DateTime('+2 days');
 
+        $range = new Extract\Range\DailyRange();
+
         $this->assertEquals(
-            $extract->events($start, $end, Extract\Range::DAILY, ['event1']),
-            $extract->events($end, $start, Extract\Range::DAILY, ['event1'])
+            $extract->events($start, $end, $range, ['event1']),
+            $extract->events($end, $start, $range, ['event1'])
         );
+    }
+
+    public function testFillGaps()
+    {
+        $extract = $this->getExtract();
+        $track = $this->getTrack();
+
+        $this->assertCount(0, $this->orm->source(Statistics::class));
+
+        $datetime1 = new \DateTime('now');
+        $datetime2 = new \DateTime('tomorrow');
+
+        $track->event('event1', 1, $datetime1);
+        $track->event('event2', 1, $datetime1);
+        $track->event('event2', 2, $datetime2);
+
+        $this->assertCount(3, $this->orm->source(Statistics::class));
+
+        $start = new \DateTime('-2 days');
+        $end = new \DateTime('+2 days');
+
+        $range = new Extract\Range\DailyRange();
+        $events = $extract->events($start, $end, $range, ['event1']);
+
+        $this->assertCount(5, $events->getRows());
     }
 }

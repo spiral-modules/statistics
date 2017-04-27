@@ -54,21 +54,13 @@ As a result, you can receive an array of ` \Spiral\Statistics\Extract\Events\Row
 ```php
 /** @var \Spiral\Statistics\Extract\Events\Row $row */
 foreach ($events->getRows() as $row) {
-    echo $row->getLabel();
-    echo $row->getEvents();
+    echo $row->getLabel();  // is a period label
+    echo $row->getEvents(); // contains all summarized events
+
+    //For month range output will be like:
+    //Label: 'Jan, 2017'
+    //Events: ['event name1 ' => 1, 'event name2 ' => 2]
 }
-```
-
-> `$row->getLabel()` is an period label, for month period will be like `'Jan, 2017'`.<br/>
-> `$row->getEvents()` contains all summarized events, for example, for month range:
-
-```php
-[
-    'Jan, 2017' => [
-        'eventName1' => 1,
-        'eventName2' => 2,
-    ]
-];
 ```
 
 ### How to use fetched events
