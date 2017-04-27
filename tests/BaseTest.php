@@ -10,6 +10,7 @@ use Psr\Log\LogLevel;
 use Spiral\Core\Core;
 use Spiral\Core\Traits\SharedTrait;
 use Spiral\Statistics\Database\Sources\OccurrenceSource;
+use Spiral\Statistics\Database\Sources\StatisticsSource;
 use Spiral\Statistics\DatetimeConverter;
 use Spiral\Statistics\Extract;
 use Spiral\Statistics\Track;
@@ -190,12 +191,12 @@ abstract class BaseTest extends TestCase
     }
 
     /**
-     * @return OccurrenceSource
+     * @return StatisticsSource
      */
-    protected function getSource(): OccurrenceSource
+    protected function getSource(): StatisticsSource
     {
         if (empty($this->source)) {
-            $this->source = $this->container->get(OccurrenceSource::class);
+            $this->source = $this->container->get(StatisticsSource::class);
         }
 
         return $this->source;

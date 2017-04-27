@@ -6,33 +6,18 @@ use Spiral\Statistics\Extract;
 
 class WeeklyTest extends AbstractInterval
 {
-    const RANGE          = Extract\Range::WEEKLY;
-    const RANGE_FIELD    = 'week_mark';
     const RANGE_INTERVAL = 'P7D';
     const RANGE_FORMAT   = 'W, Y';
 
-    protected function start(): \DateTime
-    {
-        return new \DateTime('today noon - 22 days');
-    }
+    const START = 'today noon - 22 days';
+    const END = 'today noon + 22 days';
 
-    protected function end(): \DateTime
-    {
-        return new \DateTime('today noon + 22 days');
-    }
+    const DT1 = 'today noon';
+    const DT2 = 'today noon + 2 hours';
+    const DT3 = 'today noon + 8 days + 2 hours';
 
-    protected function datetime1(): \DateTime
+    protected function range(): Extract\RangeInterface
     {
-        return new \DateTime('today noon');
-    }
-
-    protected function datetime2(): \DateTime
-    {
-        return new \DateTime('today noon + 2 hours');
-    }
-
-    protected function datetime3(): \DateTime
-    {
-        return new \DateTime('today noon + 8 days + 2 hours');
+        return new Extract\Range\WeeklyRange();
     }
 }

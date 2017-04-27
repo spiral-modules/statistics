@@ -2,29 +2,22 @@
 
 namespace Spiral\Statistics;
 
-use Spiral\Statistics\Database\Event;
-use Spiral\Statistics\Database\Occurrence;
-use Spiral\Statistics\Database\Sources\EventSource;
-use Spiral\Statistics\Database\Sources\OccurrenceSource;
+use Spiral\Statistics\Database\Sources\StatisticsSource;
+use Spiral\Statistics\Database\Statistics;
 
 class Track
 {
-    /** @var OccurrenceSource */
-    private $occurrenceSource;
-
-    /** @var EventSource */
-    private $eventSource;
+    /** @var StatisticsSource */
+    private $source;
 
     /**
      * Track constructor.
      *
-     * @param OccurrenceSource $source
-     * @param EventSource      $eventSource
+     * @param StatisticsSource $statisticsSource
      */
-    public function __construct(OccurrenceSource $source, EventSource $eventSource)
+    public function __construct(StatisticsSource $statisticsSource)
     {
-        $this->occurrenceSource = $source;
-        $this->eventSource = $eventSource;
+        $this->source = $statisticsSource;
     }
 
     /**
@@ -34,15 +27,14 @@ class Track
      */
     public function event(string $name, float $value, \DateTimeInterface $datetime = null)
     {
-        $occurrence = $this->occurrenceSource->getByTimestamp($this->datetime($datetime));
+        $datetime = $this->datetime($datetime);
+        $record = $this->source->findByEventNameAndDatetime($name, $datetime);
 
-        if (!$occurrence->primaryKey()) {
-            $this->addEvent($occurrence, $name, $value);
+        if (empty($record)) {
+            $this->addEvent($name, $value, $datetime);
         } else {
-            $this->addOrUpdateEvent($occurrence, $name, $value);
+            $this->updateEvent($record, $value);
         }
-
-        $occurrence->save();
     }
 
     /**
@@ -51,25 +43,14 @@ class Track
      */
     public function events(array $events, \DateTimeInterface $datetime = null)
     {
+        //nothing to track
         if (empty($events)) {
-            //nothing to track
             return;
         }
 
-        $occurrence = $this->occurrenceSource->getByTimestamp($this->datetime($datetime));
-
-        if (!$occurrence->primaryKey()) {
-            foreach ($events as $name => $value) {
-                $this->addEvent($occurrence, $name, floatval($value));
-            }
-        } else {
-            /** @var Event $event */
-            foreach ($events as $name => $value) {
-                $this->addOrUpdateEvent($occurrence, $name, floatval($value));
-            }
+        foreach ($events as $name => $value) {
+            $this->event($name, floatval($value), $datetime);
         }
-
-        $occurrence->save();
     }
 
     /**
@@ -81,31 +62,23 @@ class Track
         return $datetime ?? new \DateTime('now');
     }
 
-    /**
-     * @param Occurrence $occurrence
-     * @param string     $name
-     * @param float      $value
-     */
-    protected function addEvent(Occurrence $occurrence, string $name, float $value)
+    protected function addEvent(string $name, float $value, \DateTimeInterface $datetime)
     {
-        /** @var Event $event */
-        $event = $this->eventSource->create(compact('name', 'value'));
-        $occurrence->events->add($event);
+        /** @var Statistics $record */
+        $record = $this->source->create();
+        $record->name = $name;
+        $record->value = $value;
+        $record->timestamp = $datetime;
+        $record->save();
     }
 
     /**
-     * @param Occurrence $occurrence
-     * @param string     $name
+     * @param Statistics $record
      * @param float      $value
      */
-    protected function addOrUpdateEvent(Occurrence $occurrence, string $name, float $value)
+    protected function updateEvent(Statistics $record, float $value)
     {
-        /** @var Event $event */
-        $event = $occurrence->events->matchOne(compact('name'));
-        if (empty($event)) {
-            $this->addEvent($occurrence, $name, $value);
-        } else {
-            $event->value += $value;
-        }
+        $record->value += $value;
+        $record->save();
     }
 }

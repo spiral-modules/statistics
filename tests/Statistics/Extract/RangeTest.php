@@ -3,6 +3,7 @@
 namespace Spiral\Tests\Statistics\Extract;
 
 use Spiral\Statistics\Extract\Range;
+use Spiral\Statistics\Extract\RangeInterface;
 use Spiral\Tests\BaseTest;
 
 class RangeTest extends BaseTest
@@ -12,10 +13,21 @@ class RangeTest extends BaseTest
      *
      * @expectedException \Spiral\Statistics\Exceptions\InvalidExtractRangeException
      */
-    public function testUnsupportedRange()
+    public function testFactoryUnknownRange()
     {
-        $range = new Range('abc');
-        $this->assertEquals($range->getRange(), 'abc');
+        $factory = new Range\Factory();
+        $factory->getRange('some-range');
+    }
+
+    /**
+     * Test unsupported range interval
+     */
+    public function testFactoryKnownRange()
+    {
+        $factory = new Range\Factory();
+        $range = $factory->getRange(RangeInterface::DAILY);
+
+        $this->assertInstanceOf(Range\DailyRange::class, $range);
     }
 
     /**
@@ -23,11 +35,9 @@ class RangeTest extends BaseTest
      */
     public function testSupportedRange()
     {
-        $input = Range::DAILY;
-        $range = new Range($input);
-        $this->assertEquals($range->getRange(), $input);
+        $range = new Range\DailyRange();
+        $this->assertEquals($range->getRange(), RangeInterface::DAILY);
         $this->assertNotEmpty($range->getFormat());
-        $this->assertNotEmpty($range->getField());
         $this->assertNotEmpty($range->getInterval());
     }
 }
