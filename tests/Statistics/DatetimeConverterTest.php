@@ -75,24 +75,24 @@ class DatetimeConverterTest extends BaseTest
         $weekDay = $immutable->format('w') ? $immutable->format('w') - 1 : 6;
 
         $this->assertEquals(
-            $immutable->setTime(0, 0, 0),
-            $converter->convert($datetime, new DailyRange())
+            $immutable->setTime(0, 0, 0)->getTimestamp(),
+            $converter->convert($datetime, new DailyRange())->getTimestamp()
         );
         $this->assertEquals(
-            $immutable->sub(new \DateInterval('P' . $weekDay . 'D'))->setTime(0, 0, 0),
-            $converter->convert($datetime, new WeeklyRange())
+            $immutable->sub(new \DateInterval('P' . $weekDay . 'D'))->setTime(0, 0, 0)->getTimestamp(),
+            $converter->convert($datetime, new WeeklyRange())->getTimestamp()
         );
         $this->assertEquals(
-            $immutable->setDate($formatYear, $formatMonth, 1)->setTime(0, 0, 0),
-            $converter->convert($datetime, new MonthlyRange())
+            $immutable->setDate($formatYear, $formatMonth, 1)->setTime(0, 0, 0)->getTimestamp(),
+            $converter->convert($datetime, new MonthlyRange())->getTimestamp()
         );
         $this->assertEquals(
-            $immutable->setDate($formatYear, 1, 1)->setTime(0, 0, 0),
-            $converter->convert($datetime, new YearlyRange())
+            $immutable->setDate($formatYear, 1, 1)->setTime(0, 0, 0)->getTimestamp(),
+            $converter->convert($datetime, new YearlyRange())->getTimestamp()
         );
         $this->assertEquals(
-            $immutable,
-            $converter->convert($datetime, new UnknownRange())
+            $immutable->getTimestamp(),
+            $converter->convert($datetime, new UnknownRange())->getTimestamp()
         );
     }
 }
