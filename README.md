@@ -23,11 +23,11 @@ You can both track a single event or a batch of events
 /**
  * @var \Spiral\Statistics\Track $track
  */
-$track->event($eventName, $eventValue, $datetime);
+$track->event('event name 1', 1, $datetime);
 //OR
 $track->events([
-    $eventName1 => $eventValue1,
-    $eventName2 => $eventValue2
+    'event name 2' => 2,
+    'event name 3' => 3
 ],
     $datetime
 );
@@ -40,36 +40,27 @@ $track->events([
 ```php
 /**
  * @var \Spiral\Statistics\Extract $extract
+ * @var \Spiral\Statistics\Extract\RangeInterface $range
  * @var \Spiral\Statistics\Extract\Events $events
+ *
+ * $range is a grouping level, you can use one of supported ones, they are placed in
+ * `\Spiral\Statistics\Extract\Range` namespace.
  */
-$events = $extract->events($startDatetime, $endDatetime, $range, ['eventName1', 'eventName2']);
+$events = $extract->events($startDatetime, $endDatetime, $range, ['event name 1', 'event name 2']);
 ```
-> `$startDatetime` and `$endDatetime` will be swapped if `$endDatetime` is less than `$startDatetime`. <br/>
-> `$range` is a grouping level, you can use one of supported ones: "day", "week", "month", "year", just use `\Spiral\Statistics\Extract\Range` constants.
+> `$startDatetime` and `$endDatetime` will be swapped if `$endDatetime` is less than `$startDatetime`.
 
-As a result, you will receive an array of ` \Spiral\Statistics\Extract\Events\Row` objects, one row represents one range period.
+As a result, you can receive an array of ` \Spiral\Statistics\Extract\Events\Row` objects, one row represents one range period.
 ```php
-/**
- * @var \Spiral\Statistics\Extract $extract
- * @var \Spiral\Statistics\Extract\Events\Row $row
- */
-$rows = $events->getRows();
-foreach ($rows as $row) {
-    echo $row->getLabel();
-    echo $row->getEvents();
+/** @var \Spiral\Statistics\Extract\Events\Row $row */
+foreach ($events->getRows() as $row) {
+    echo $row->getLabel();  // is a period label
+    echo $row->getEvents(); // contains all summarized events
+
+    //For month range output will be like:
+    //Label: 'Jan, 2017'
+    //Events: ['event name1 ' => 1, 'event name2 ' => 2]
 }
-```
-
-> `$row->getLabel()` is an period label, for month period will be like `'Jan, 2017'`.<br/>
-> `$row->getEvents()` contains all summarized events, for example, for month range:
-
-```php
-[
-    'Jan, 2017' => [
-        'eventName1' => 1,
-        'eventName2' => 2,
-    ]
-];
 ```
 
 ### How to use fetched events
